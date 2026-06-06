@@ -7,9 +7,8 @@
   <title>🧠 MindBuddy — Student Mental Wellness Tracker</title>
   <link rel="stylesheet" href="index.css" />
 </head>
-<body>
-
-<div class="shell">
+<a href="#main-content" class="skip-link" style="position:absolute; left:-999px; top:auto; width:1px; height:1px; overflow:hidden;">Skip to main content</a>
+<div class="shell" id="main-content" role="main">
 
   <!-- ═══════ SIDEBAR ═══════ -->
   <aside class="sidebar" id="sidebar">
@@ -852,6 +851,143 @@
      ═══════════════════════════════════════════════════════════ -->
 <script>
 const API='http://localhost:3000';
+
+async function authFetch(url, options = {}) {
+  const token = localStorage.getItem('mindbuddy_token');
+  options.headers = options.headers || {};
+  if (token) {
+    options.headers['Authorization'] = `Bearer ${token}`;
+  }
+  const r = await fetch(url, options);
+  if (r.status === 401 || r.status === 403) {
+    logout();
+    throw new Error('Unauthorized');
+  }
+  return r;
+}
+
+function logout() {
+  localStorage.removeItem('mindbuddy_token');
+  localStorage.removeItem('mindbuddy_username');
+  localStorage.removeItem('mindbuddy_profile');
+  localStorage.removeItem('mindbuddy_study_seconds');
+  document.body.classList.add('logged-out');
+  go('login');
+}
+
+let authMode = 'login';
+
+function wireAuth() {
+  const toggleBtn = document.getElementById('login-toggle-btn');
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      authMode = authMode === 'login' ? 'signup' : 'login';
+      updateAuthUI();
+    });
+  }
+  
+  const logoutBtn1 = document.getElementById('sb-logout-btn');
+  if (logoutBtn1) {
+    logoutBtn1.addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+  }
+  
+  const logoutBtn2 = document.getElementById('prof-logout-btn');
+  if (logoutBtn2) {
+    logoutBtn2.addEventListener('click', (e) => {
+      e.preventDefault();
+      logout();
+    });
+  }
+}
+
+function updateAuthUI() {
+  const title = document.getElementById('login-title');
+  const subtitle = document.getElementById('login-subtitle');
+  const submitBtn = document.getElementById('login-submit-btn');
+  const toggleText = document.getElementById('login-toggle-text');
+  const toggleBtn = document.getElementById('login-toggle-btn');
+  const errDiv = document.getElementById('login-error');
+  
+  if (errDiv) errDiv.style.display = 'none';
+  
+  if (authMode === 'login') {
+    title.textContent = 'Welcome Back to MindBuddy';
+    subtitle.textContent = 'Please login to access your wellness dashboard.';
+    submitBtn.textContent = 'Sign In';
+    toggleText.textContent = "Don't have an account?";
+    toggleBtn.textContent = 'Register Account';
+  } else {
+    title.textContent = 'Create Your MindBuddy Account';
+    subtitle.textContent = 'Join our secure sanctuary and start tracking your wellness.';
+    submitBtn.textContent = 'Create Account';
+    toggleText.textContent = 'Already have an account?';
+    toggleBtn.textContent = 'Sign In';
+  }
+}
+
+async function handleAuthSubmit() {
+  const username = document.getElementById('login-user').value.trim();
+  const password = document.getElementById('login-pass').value;
+  const errDiv = document.getElementById('login-error');
+  const submitBtn = document.getElementById('login-submit-btn');
+  
+  if (!username || !password) {
+    errDiv.textContent = '❌ Please enter both username and password';
+    errDiv.style.display = 'block';
+    return;
+  }
+  
+  errDiv.style.display = 'none';
+  submitBtn.disabled = true;
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = authMode === 'login' ? 'Signing In...' : 'Registering...';
+  
+  const endpoint = authMode === 'login' ? '/api/auth/login' : '/api/auth/signup';
+  
+  try {
+    const response = await fetch(`${API}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+    
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || 'An error occurred during authentication');
+    }
+    
+    localStorage.setItem('mindbuddy_token', data.token);
+    localStorage.setItem('mindbuddy_username', data.username);
+    toast(authMode === 'login' ? 'Logged in successfully! ✨' : 'Registered successfully! ✨');
+    
+    document.getElementById('login-user').value = '';
+    document.getElementById('login-pass').value = '';
+    
+    document.body.classList.remove('logged-out');
+    
+    await fetchProfile();
+    await apiChk();
+    await fetchMoods();
+    await fetchJ();
+    await fetchEx();
+    await fetchStats();
+    
+    go('dashboard');
+  } catch (err) {
+    errDiv.textContent = `❌ ${err.message}`;
+    errDiv.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
+  }
+}
+window.handleAuthSubmit = handleAuthSubmit;
 const E={1:'😢',2:'😟',3:'😐',4:'😊',5:'🤩'};
 const L={1:'Awful',2:'Low',3:'Okay',4:'Good',5:'Great'};
 const C={1:'#f47191',2:'#f09030',3:'#f0b429',4:'#3ecfb2',5:'#7c8cf5'};
@@ -904,8 +1040,18 @@ document.addEventListener('DOMContentLoaded', async()=>{
   wirePomo();
   wireSoundscapes();
   wireSOSBreathing();
-  await fetchProfile();
-  await apiChk(); await fetchMoods(); await fetchJ(); await fetchEx(); await fetchStats();
+  wireAuth();
+  
+  const token = localStorage.getItem('mindbuddy_token');
+  if(token){
+    document.body.classList.remove('logged-out');
+    await fetchProfile();
+    await apiChk(); await fetchMoods(); await fetchJ(); await fetchEx(); await fetchStats();
+    go('dashboard');
+  }else{
+    document.body.classList.add('logged-out');
+    go('login');
+  }
 });
 
 // ── NAV ──
@@ -944,7 +1090,7 @@ function tip(){
 
 // ── API ──
 async function apiChk(){
-  try{const r=await(await fetch(`${API}/api/config`)).json();aiOn=r.geminiConfigured;updDot();}
+  try{const r=await(await authFetch(`${API}/api/config`)).json();aiOn=r.geminiConfigured;updDot();}
   catch{document.getElementById('sb-txt').textContent='Server offline';}
 }
 
@@ -964,14 +1110,14 @@ function wireDash(){
   b.addEventListener('click',async()=>{
     if(!dLv)return;
     const em=dLv>=4?['Hopeful']:dLv<=2?['Stressed']:['Calm'];
-    try{await fetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:dLv,emotions:em,note:'',examContext:'General'})});
+    try{await authFetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:dLv,emotions:em,note:'',examContext:'General'})});
     toast('Mood logged! ✨');dLv=null;r.querySelectorAll('.emo-btn').forEach(y=>y.classList.remove('on'));b.disabled=true;fetchMoods();fetchSp();
     }catch{toast('Failed','err');}
   });
 }
 
 // ── SPARK ──
-async function fetchSp(){try{const d=await(await fetch(`${API}/api/stats`)).json();rSp(d.weeklyTrend||[]);}catch{}}
+async function fetchSp(){try{const d=await(await authFetch(`${API}/api/stats`)).json();rSp(d.weeklyTrend||[]);}catch{}}
 
 function rSp(t){
   const el=document.getElementById('dsp');
@@ -1000,7 +1146,7 @@ function wireMood(){
   lb.addEventListener('click',async()=>{
     const triggerBurnout = (pLv <= 2 && pEmo.includes('Burned Out'));
     try{
-      await fetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:pLv,emotions:[...pEmo],note:no.value.trim(),examContext:document.getElementById('mctx').value})});
+      await authFetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:pLv,emotions:[...pEmo],note:no.value.trim(),examContext:document.getElementById('mctx').value})});
       toast(`${E[pLv]} ${L[pLv]} logged!`);
       if (triggerBurnout) {
         triggerBurnoutInterrupter('burned_out_mood');
@@ -1012,12 +1158,12 @@ function wireMood(){
     }catch{toast('Failed','err');}
   });
 
-  cl.addEventListener('click',async()=>{if(!confirm('Clear all mood entries?'))return;try{for(const m of moods)await fetch(`${API}/api/mood/${m.id}`,{method:'DELETE'});toast('Cleared');fetchMoods();fetchSp();}catch{toast('Error','err');}});
+  cl.addEventListener('click',async()=>{if(!confirm('Clear all mood entries?'))return;try{for(const m of moods)await authFetch(`${API}/api/mood/${m.id}`,{method:'DELETE'});toast('Cleared');fetchMoods();fetchSp();}catch{toast('Error','err');}});
   function ck(){lb.disabled=!(pLv&&pEmo.length);}
 }
 
 // ── MOODS LIST ──
-async function fetchMoods(){try{moods=await(await fetch(`${API}/api/mood`)).json();rM();}catch{}}
+async function fetchMoods(){try{moods=await(await authFetch(`${API}/api/mood`)).json();rM();}catch{}}
 
 function rM(){
   const el=document.getElementById('mlist');
@@ -1029,7 +1175,7 @@ function rM(){
   }).join('');
 }
 
-async function delM(id){try{await fetch(`${API}/api/mood/${id}`,{method:'DELETE'});toast('Deleted');fetchMoods();fetchSp();}catch{toast('Error','err');}}
+async function delM(id){try{await authFetch(`${API}/api/mood/${id}`,{method:'DELETE'});toast('Deleted');fetchMoods();fetchSp();}catch{toast('Error','err');}}
 
 // ── JOURNAL ──
 function wireJournal(){
@@ -1040,17 +1186,17 @@ function wireJournal(){
   fetchP();
 }
 
-async function fetchP(){try{const d=await(await fetch(`${API}/api/journal/prompts`)).json();document.getElementById('ptxt').textContent=d.prompt;}catch{document.getElementById('ptxt').textContent="What's one thing that went well today?";}}
+async function fetchP(){try{const d=await(await authFetch(`${API}/api/journal/prompts`)).json();document.getElementById('ptxt').textContent=d.prompt;}catch{document.getElementById('ptxt').textContent="What's one thing that went well today?";}}
 
 async function saveJ(){
   const ti=document.getElementById('jti').value.trim(),co=document.getElementById('jbo').value.trim(),pr=document.getElementById('ptxt').textContent;
   if(!co){toast('Write something first!','err');return;}
-  try{await fetch(`${API}/api/journal`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:ti||'Untitled Entry',content:co,prompt:pr})});
+  try{await authFetch(`${API}/api/journal`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:ti||'Untitled Entry',content:co,prompt:pr})});
   toast('Journal saved! 📝');document.getElementById('jti').value='';document.getElementById('jbo').value='';document.getElementById('jch').textContent='0 / 5000';fetchJ();fetchP();
   }catch{toast('Failed','err');}
 }
 
-async function fetchJ(){try{const d=await(await fetch(`${API}/api/journal`)).json();rJ(d);}catch{}}
+async function fetchJ(){try{const d=await(await authFetch(`${API}/api/journal`)).json();rJ(d);}catch{}}
 
 function rJ(entries){
   const el=document.getElementById('jlist');
@@ -1061,7 +1207,7 @@ function rJ(entries){
   }).join('');
 }
 
-async function delJ(id){try{await fetch(`${API}/api/journal/${id}`,{method:'DELETE'});toast('Deleted');fetchJ();}catch{toast('Error','err');}}
+async function delJ(id){try{await authFetch(`${API}/api/journal/${id}`,{method:'DELETE'});toast('Deleted');fetchJ();}catch{toast('Error','err');}}
 
 // ── CHAT ──
 function wireChat(){
@@ -1076,7 +1222,7 @@ async function sendC(){
   const i=document.getElementById('cin'),m=i.value.trim();if(!m)return;
   addB(esc(m),'u');i.value='';i.disabled=true;document.getElementById('cgo').disabled=true;
   const tid='t'+Date.now();addT(tid);
-  try{const r=await fetch(`${API}/api/wellness/advice`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m,moodHistory:moods.slice(0,7)})});const d=await r.json();rmT(tid);addB(fmtAI(d.advice),'b');}
+  try{const r=await authFetch(`${API}/api/wellness/advice`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m,moodHistory:moods.slice(0,7)})});const d=await r.json();rmT(tid);addB(fmtAI(d.advice),'b');}
   catch{rmT(tid);addB("Sorry, I couldn't connect right now. Please try again. 💙",'b');}
   i.disabled=false;document.getElementById('cgo').disabled=false;i.focus();
 }
@@ -1088,7 +1234,7 @@ function fmtAI(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').repla
 
 // ── BREATHING ──
 async function fetchEx(){
-  try{exs=await(await fetch(`${API}/api/wellness/breathing`)).json();}
+  try{exs=await(await authFetch(`${API}/api/wellness/breathing`)).json();}
   catch{exs=[{id:'box',name:'Box Breathing',description:'Equal counts for instant calm.',steps:[{action:'Inhale',duration:4},{action:'Hold',duration:4},{action:'Exhale',duration:4},{action:'Hold',duration:4}],cycles:4,color:'#3ecfb2'},{id:'478',name:'4-7-8 Technique',description:'Promotes deep relaxation.',steps:[{action:'Inhale',duration:4},{action:'Hold',duration:7},{action:'Exhale',duration:8}],cycles:4,color:'#7c8cf5'},{id:'deep',name:'Deep Calm',description:'Extended exhale for deep relaxation.',steps:[{action:'Inhale',duration:5},{action:'Hold',duration:2},{action:'Exhale',duration:8}],cycles:5,color:'#56b3f7'}];}
   rEp();pickE(0);
 }
@@ -1126,7 +1272,7 @@ function stopB(){
 }
 
 // ── ANALYTICS ──
-async function fetchStats(){try{const d=await(await fetch(`${API}/api/stats`)).json();rSt(d);}catch{}}
+async function fetchStats(){try{const d=await(await authFetch(`${API}/api/stats`)).json();rSt(d);}catch{}}
 
 function rSt(d){
   document.getElementById('st').textContent=d.totalEntries||0;
@@ -1169,7 +1315,7 @@ function mGrad(l){if(l>=4.5)return'linear-gradient(to top,#7c8cf5,#a5b4fc)';if(l
 function wireModal(){
   document.getElementById('ksave').addEventListener('click',async()=>{
     const k=document.getElementById('kinp').value.trim();if(!k)return;
-    try{await fetch(`${API}/api/config/key`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:k})});aiOn=true;updDot();document.getElementById('kmod').classList.remove('show');toast('Gemini AI connected! 🤖');}
+    try{await authFetch(`${API}/api/config/key`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:k})});aiOn=true;updDot();document.getElementById('kmod').classList.remove('show');toast('Gemini AI connected! 🤖');}
     catch{toast('Failed','err');}
   });
   document.getElementById('kskip').addEventListener('click',()=>document.getElementById('kmod').classList.remove('show'));
@@ -1182,7 +1328,7 @@ function toast(m,t='ok'){document.querySelector('.toast')?.remove();const d=docu
 // ── PROFILE & PERSONALIZATION ──
 async function fetchProfile() {
   try {
-    const r = await fetch(`${API}/api/profile`);
+    const r = await authFetch(`${API}/api/profile`);
     userProfile = await r.json();
     if (userProfile && userProfile.onboarded) {
       document.getElementById('onboard-ov').classList.remove('show');
@@ -1447,7 +1593,7 @@ function getSelectedChipsValues(containerId) {
 
 async function saveProfile(profile) {
   try {
-    const r = await fetch(`${API}/api/profile`, {
+    const r = await authFetch(`${API}/api/profile`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(profile)

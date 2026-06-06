@@ -1,0 +1,9 @@
+[
+  {
+    "id": "6879e7a9-165e-42b8-a6e3-9dabf0f5b7ce",
+    "username": "xyz",
+    "salt": "0ad1252b29217abf2fe3ed8d3d98fa12",
+    "passwordHash": "d97d81c0689e84a38b44e630f494faac8fea32e79e1d39c4c2fd921a4171433de64d3f7afa07deef483beece0203c9f419eb953b130bd7ff3455adda514664ea",
+    "createdAt": "2026-06-06T07:52:39.280Z"
+  }
+]

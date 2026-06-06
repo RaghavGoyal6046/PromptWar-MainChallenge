@@ -9,6 +9,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -18,10 +19,57 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, '..')));
+// ─── Security Headers ──────────────────────────────────────────────────────
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// ─── In-Memory Rate Limiter ────────────────────────────────────────────────
+const rateLimitStore = new Map();
+function rateLimit({ windowMs = 60000, max = 100 } = {}) {
+  return (req, res, next) => {
+    const key = req.ip || 'unknown';
+    const now = Date.now();
+    const record = rateLimitStore.get(key) || { count: 0, reset: now + windowMs };
+
+    if (now > record.reset) {
+      record.count = 0;
+      record.reset = now + windowMs;
+    }
+    record.count++;
+    rateLimitStore.set(key, record);
+
+    res.setHeader('X-RateLimit-Limit', max);
+    res.setHeader('X-RateLimit-Remaining', Math.max(0, max - record.count));
+
+    if (record.count > max) {
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+    next();
+  };
+}
+
+// ─── Middleware ────────────────────────────────────────────────────────────
+app.use(compression());
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'DELETE', 'OPTIONS'] }));
+app.use(express.json({ limit: '100kb' }));
+
+// Apply stricter rate limit to auth endpoints
+app.use('/api/auth', rateLimit({ windowMs: 60000, max: 20 }));
+// General API rate limit
+app.use('/api', rateLimit({ windowMs: 60000, max: 300 }));
+
+app.use(express.static(path.join(__dirname, '..'), {
+  maxAge: '1d',
+  setHeaders: (res, filePath) => {
+    res.setHeader('Cache-Control', 'public, max-age=86400, must-revalidate');
+  }
+}));
 
 // ─── Data Persistence (JSON Files) ────────────────────────────────────
 const DATA_DIR = path.join(__dirname, 'data');
@@ -635,9 +683,13 @@ app.get('/api/journal/prompts', authenticateToken, (req, res) => {
 
 // ─── Start Server ────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
-  console.log(`\n🧠 Mental Wellness Tracker Server`);
-  console.log(`   Running on http://localhost:${PORT}`);
-  console.log(`   Gemini AI: ${model ? '✅ Connected' : '⚠️  Fallback mode'}`);
-  console.log(`   Data dir:  ${DATA_DIR}\n`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`\n🧠 Mental Wellness Tracker Server`);
+    console.log(`   Running on http://localhost:${PORT}`);
+    console.log(`   Gemini AI: ${model ? '✅ Connected' : '⚠️  Fallback mode'}`);
+    console.log(`   Data dir:  ${DATA_DIR}\n`);
+  });
+}
+
+module.exports = app;

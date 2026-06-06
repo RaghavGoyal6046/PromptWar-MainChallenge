@@ -1,0 +1,9 @@
+{
+  "name": "mindbuddy",
+  "version": "1.0.0",
+  "description": "Student Mental Wellness Tracker",
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "test": "npm test --prefix backend"
+  }
+}
