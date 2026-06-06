@@ -1,0 +1,2059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="MindBuddy — Mental wellness tracker for students preparing for NEET, JEE, CUET, CAT, GATE, UPSC & board exams. Track mood, identify stress triggers, journal reflections, and get AI wellness support." />
+  <title>🧠 MindBuddy — Student Mental Wellness Tracker</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ═══════ SIDEBAR ═══════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">🧠</div>
+      <span class="sb-name">MindBuddy</span>
+    </div>
+
+    <div class="sb-label">Overview</div>
+    <button class="sb-link active" data-v="dashboard"><span class="sb-ico">🏠</span>Dashboard</button>
+    <button class="sb-link" data-v="mood"><span class="sb-ico">📊</span>Mood Tracker</button>
+    <button class="sb-link" data-v="analytics"><span class="sb-ico">📈</span>Analytics</button>
+    <button class="sb-link" data-v="profile"><span class="sb-ico">👤</span>Profile</button>
+
+    <div class="sb-label">Wellness</div>
+    <button class="sb-link" data-v="journal"><span class="sb-ico">📓</span>Journal</button>
+    <button class="sb-link" data-v="advisor"><span class="sb-ico">🤖</span>AI Advisor</button>
+    <button class="sb-link" data-v="focus"><span class="sb-ico">⏱️</span>Focus Timer</button>
+    <button class="sb-link" data-v="breathe"><span class="sb-ico">🫁</span>Breathe</button>
+
+    <div class="sb-spacer"></div>
+    
+    <button class="btn btn-w mb-md" id="sb-urgent-btn" style="background:#e11d48; color:white; border-radius:var(--r-md); font-size:0.8rem; box-shadow:0 2px 10px rgba(225,29,72,0.3); border:none; padding:9px 12px; cursor:pointer;">🚨 Urgent Help</button>
+
+    <div class="sb-footer">
+      <div class="sb-status" id="sb-status" title="Click to configure API key" style="margin-bottom: 8px;">
+        <span class="sb-dot off" id="sb-dot"></span>
+        <span id="sb-txt">Checking…</span>
+      </div>
+      <button class="sb-link" id="sb-logout-btn" style="color: var(--rose); background: rgba(244,113,145,0.05); border: 1px solid rgba(244,113,145,0.15); width: 100%; border-radius: var(--r-sm); font-size: 0.76rem; padding: 6px 10px; margin-top: 4px; cursor: pointer; display: flex; align-items: center; gap: 8px;"><span class="sb-ico">🚪</span>Logout Account</button>
+    </div>
+  </aside>
+
+  <!-- ═══════ MOBILE BOTTOM BAR ═══════ -->
+  <div class="mob-bar" id="mob-bar">
+    <button class="mob-btn active" data-v="dashboard"><span class="mob-ico">🏠</span>Home</button>
+    <button class="mob-btn" data-v="mood"><span class="mob-ico">📊</span>Mood</button>
+    <button class="mob-btn" data-v="journal"><span class="mob-ico">📓</span>Journal</button>
+    <button class="mob-btn" data-v="advisor"><span class="mob-ico">🤖</span>AI</button>
+    <button class="mob-btn" data-v="focus"><span class="mob-ico">⏱️</span>Focus</button>
+    <button class="mob-btn" data-v="breathe"><span class="mob-ico">🫁</span>Breathe</button>
+    <button class="mob-btn" data-v="analytics"><span class="mob-ico">📈</span>Stats</button>
+    <button class="mob-btn" data-v="profile"><span class="mob-ico">👤</span>Profile</button>
+  </div>
+
+  <!-- ═══════ MAIN CONTENT ═══════ -->
+  <div class="main">
+    <div class="page-wrap">
+
+      <!-- ╔═══════════════════════════════════════════════════════╗
+           ║  LOGIN / SIGNUP                                       ║
+           ╚═══════════════════════════════════════════════════════╝ -->
+      <div class="page" id="p-login">
+        <div style="display: flex; justify-content: center; align-items: center; min-height: 70vh; padding: 20px 0;">
+          <div class="login-card">
+            <div class="tc">
+              <span class="ob-logo" style="margin-bottom: 15px;">🧠</span>
+              <h2 id="login-title" class="page-head-title" style="font-size: 1.5rem; color: var(--text-white); margin-bottom: 6px;">Welcome Back to MindBuddy</h2>
+              <p id="login-subtitle" class="page-head-sub" style="font-size: 0.85rem; margin-bottom: 24px;">Please login to access your wellness dashboard.</p>
+            </div>
+            
+            <div id="login-error" class="toast err" style="position: static; margin-bottom: 16px; width: 100%; display: none; padding: 8px 12px; font-size: 0.82rem; border-radius: var(--r-sm); box-shadow: none;">
+              ❌ Error message here
+            </div>
+            
+            <form id="login-form" onsubmit="event.preventDefault(); handleAuthSubmit();">
+              <div class="fld">
+                <label class="fld-lbl" for="login-user">Username</label>
+                <input class="inp" id="login-user" type="text" placeholder="Enter username..." required maxlength="30" style="background: var(--bg-body);" />
+              </div>
+              <div class="fld mt-md">
+                <label class="fld-lbl" for="login-pass">Password</label>
+                <input class="inp" id="login-pass" type="password" placeholder="Enter password..." required minlength="6" style="background: var(--bg-body);" />
+              </div>
+              <button class="btn btn-p btn-w mt-lg" id="login-submit-btn" type="submit" style="width: 100%; font-size: 0.9rem; padding: 10px 14px;">Sign In</button>
+            </form>
+            
+            <div class="tc mt-lg pt border-t" style="border-top: 1px solid var(--border); padding-top: 18px; font-size: 0.84rem;">
+              <span id="login-toggle-text" class="tmuted">Don't have an account?</span>
+              <button id="login-toggle-btn" class="btn btn-g txs" style="margin-left: 6px; padding: 4px 8px; border-radius: var(--r-sm);">Register Account</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  DASHBOARD                                            ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page show" id="p-dashboard">
+      <div class="g2">
+
+        <!-- Hero -->
+        <div class="card hero gfull">
+          <div class="hero-eye" id="hero-eye">☀️ Good Afternoon</div>
+          <h1 class="hero-h" id="hero-h">How's your study session going?</h1>
+          <p class="hero-p">Track your mood, reflect on your emotions, and get personalized support for your exam preparation. Every check-in counts.</p>
+        </div>
+
+        <!-- Quick Check-in -->
+        <div class="card card-stripe">
+          <div class="card-hdr"><span class="card-lbl">Quick Check-In</span></div>
+          <div class="emo-row" id="de">
+            <button class="emo-btn" data-lv="1">😢<span class="elbl">Awful</span></button>
+            <button class="emo-btn" data-lv="2">😟<span class="elbl">Low</span></button>
+            <button class="emo-btn" data-lv="3">😐<span class="elbl">Okay</span></button>
+            <button class="emo-btn" data-lv="4">😊<span class="elbl">Good</span></button>
+            <button class="emo-btn" data-lv="5">🤩<span class="elbl">Great</span></button>
+          </div>
+          <button class="btn btn-p btn-w mt-md" id="dlog" disabled>Log Mood</button>
+        </div>
+
+        <!-- Sparkline -->
+        <div class="card card-stripe">
+          <div class="card-hdr"><span class="card-lbl">Last 7 Days</span></div>
+          <div id="dsp"><div class="nil-state"><div class="nil-ico">📊</div><div class="nil-txt tsm">Log your first mood to see trends</div></div></div>
+        </div>
+
+        <!-- Profile Focus Card -->
+        <div class="card card-stripe" id="dash-profile-card">
+          <div class="card-hdr"><span class="card-lbl">My Profile Focus</span></div>
+          <div style="font-size: 0.95rem; font-weight: 600; color: var(--text-white); display: flex; align-items: center; gap: 8px;">
+            <span id="dash-profile-emoji" style="font-size: 1.4rem;">🎯</span>
+            <span id="dash-profile-exam">Target: General Wellness</span>
+          </div>
+          <div class="tmuted txs mt-xs" id="dash-profile-hours">Daily Study Commitment: 4-6 hours</div>
+          <div class="tags mt-sm" id="dash-profile-goals" style="margin: 8px 0 0;">
+            <!-- Render goals -->
+          </div>
+          <div class="flex gap-sm mt-md">
+            <button class="btn btn-o tsm btn-w" onclick="go('profile')">⚙️ Manage Profile</button>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card">
+          <div class="card-hdr"><span class="card-lbl">Quick Actions</span></div>
+          <div class="acts-vertical">
+            <button class="act-v" onclick="go('journal')"><span class="act-i">✍️</span><span class="act-l">Write in Journal</span></button>
+            <button class="act-v" onclick="go('breathe')"><span class="act-i">🫁</span><span class="act-l">Breathing Exercise</span></button>
+            <button class="act-v" onclick="go('advisor')"><span class="act-i">💬</span><span class="act-l">Talk to AI Advisor</span></button>
+            <button class="act-v" id="dash-urgent-btn" style="border-color: rgba(225,29,72,0.25);"><span class="act-i">🚨</span><span class="act-l" style="color:var(--rose);">Urgent Helplines</span></button>
+          </div>
+        </div>
+
+        <!-- Tip -->
+        <div class="card tip gfull">
+          <span class="tip-i">💡</span>
+          <div class="tip-t" id="dtip"><strong>Tip:</strong> Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  MOOD TRACKER                                         ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-mood">
+      <div class="page-head">
+        <div class="page-head-eyebrow">Mood Tracker</div>
+        <h2 class="page-head-title">How are you feeling right now?</h2>
+        <p class="page-head-sub">Select your mood, tag your emotions, choose your exam context, and optionally describe what triggered this feeling.</p>
+      </div>
+      <div class="g2">
+
+        <!-- Log Form -->
+        <div class="card card-stripe">
+          <div class="emo-row" id="me">
+            <button class="emo-btn" data-lv="1">😢</button>
+            <button class="emo-btn" data-lv="2">😟</button>
+            <button class="emo-btn" data-lv="3">😐</button>
+            <button class="emo-btn" data-lv="4">😊</button>
+            <button class="emo-btn" data-lv="5">🤩</button>
+          </div>
+
+          <div class="card-lbl mt-lg">Emotions</div>
+          <div class="tags" id="etags">
+            <button class="tag neg" data-e="Anxious">😰 Anxious</button>
+            <button class="tag neg" data-e="Stressed">😫 Stressed</button>
+            <button class="tag neg" data-e="Overwhelmed">🤯 Overwhelmed</button>
+            <button class="tag neg" data-e="Burned Out">🔥 Burned Out</button>
+            <button class="tag neg" data-e="Self-Doubt">😔 Self-Doubt</button>
+            <button class="tag neg" data-e="Lonely">🥺 Lonely</button>
+            <button class="tag neg" data-e="Frustrated">😤 Frustrated</button>
+            <button class="tag pos" data-e="Motivated">💪 Motivated</button>
+            <button class="tag pos" data-e="Hopeful">🌟 Hopeful</button>
+            <button class="tag pos" data-e="Focused">🎯 Focused</button>
+            <button class="tag pos" data-e="Calm">🧘 Calm</button>
+            <button class="tag pos" data-e="Confident">😎 Confident</button>
+            <button class="tag pos" data-e="Grateful">🙏 Grateful</button>
+          </div>
+
+          <div class="card-lbl mt-md">Academic Stress Triggers</div>
+          <div class="tags" id="mtags">
+            <button class="tag neg" data-e="Mock Test Failure">📊 Mock Test Failure</button>
+            <button class="tag neg" data-e="Syllabus Backlog">📚 Syllabus Backlog</button>
+            <button class="tag neg" data-e="Peer Comparison">👥 Peer Comparison</button>
+            <button class="tag neg" data-e="Sleep Deprivation">😴 Sleep Deprivation</button>
+            <button class="tag neg" data-e="Approaching Exam Date">⏱️ Approaching Exam Date</button>
+          </div>
+
+          <div class="fld">
+            <label class="fld-lbl" for="mctx">Exam Context</label>
+            <select class="sel" id="mctx">
+              <option value="General">General</option>
+              <option value="NEET">NEET</option>
+              <option value="JEE">JEE (Main / Advanced)</option>
+              <option value="CUET">CUET</option>
+              <option value="CAT">CAT</option>
+              <option value="GATE">GATE</option>
+              <option value="UPSC">UPSC</option>
+              <option value="Board Exams">Board Exams (10th / 12th)</option>
+            </select>
+          </div>
+
+          <div class="fld">
+            <label class="fld-lbl" for="mnote">What triggered this feeling? (optional)</label>
+            <textarea class="txa" id="mnote" rows="3" placeholder="e.g. Physics chapter was really hard today…" maxlength="500"></textarea>
+            <div class="txs tmuted mt-xs" id="mch">0 / 500</div>
+          </div>
+
+          <button class="btn btn-p btn-w" id="mlog" disabled>✨ Log This Mood</button>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+          <div class="card-hdr">
+            <span class="card-lbl">Mood History</span>
+            <button class="btn btn-g tsm" id="mclear">🗑️ Clear</button>
+          </div>
+          <div id="mlist" style="max-height:600px;overflow-y:auto">
+            <div class="nil-state"><div class="nil-ico">📝</div><div class="nil-txt">No moods logged yet</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  JOURNAL                                              ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-journal">
+      <div class="page-head">
+        <div class="page-head-eyebrow">Journal</div>
+        <h2 class="page-head-title">Reflect & Write</h2>
+        <p class="page-head-sub">Journaling helps process emotions and build self-awareness. Use the prompt below or write freely.</p>
+      </div>
+      <div class="g2">
+
+        <div class="card card-stripe">
+          <div class="card pb" id="pcard">
+            <span class="pb-ico">💭</span>
+            <span class="pb-txt" id="ptxt">Loading…</span>
+            <button class="pb-ref" id="pref" title="New prompt">🔄</button>
+          </div>
+
+          <div class="fld">
+            <label class="fld-lbl" for="jti">Entry Title</label>
+            <input class="inp" id="jti" type="text" placeholder="Give this entry a title…" maxlength="100" />
+          </div>
+          <div class="fld">
+            <label class="fld-lbl" for="jbo">Your Thoughts</label>
+            <textarea class="txa" id="jbo" rows="8" placeholder="Write freely… this is your safe space." maxlength="5000"></textarea>
+            <div class="txs tmuted mt-xs" id="jch">0 / 5000</div>
+          </div>
+          <button class="btn btn-p btn-w" id="jsave">💾 Save Entry</button>
+        </div>
+
+        <div class="card">
+          <div class="card-hdr"><span class="card-lbl">Past Entries</span></div>
+          <div id="jlist" style="max-height:600px;overflow-y:auto">
+            <div class="nil-state"><div class="nil-ico">📓</div><div class="nil-txt">No entries yet</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  AI ADVISOR                                           ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-advisor">
+      <div class="page-head">
+        <div class="page-head-eyebrow">AI Wellness Advisor</div>
+        <h2 class="page-head-title">Chat with MindBuddy</h2>
+        <p class="page-head-sub">Your compassionate AI companion who understands the unique pressures of Indian competitive exams.</p>
+      </div>
+
+      <div class="chat" id="chat">
+        <div class="chat-msgs" id="cmsg">
+          <div class="cb b">
+            Hey there! 👋 I'm <strong>MindBuddy</strong>, your wellness companion.<br><br>
+            I understand exam prep can be really tough — whether you're studying for NEET, JEE, CUET, or boards. Tell me how you're feeling, and I'll help. 💙
+          </div>
+        </div>
+        <div class="chat-ft">
+          <input class="chat-in" id="cin" type="text" placeholder="Tell me how you're feeling…" maxlength="1000" />
+          <button class="chat-go" id="cgo" title="Send">➤</button>
+        </div>
+      </div>
+
+      <div class="qp mt-sm">
+        <button class="btn btn-o" onclick="qc('I\'m feeling really stressed about my upcoming exam')">😫 Stressed</button>
+        <button class="btn btn-o" onclick="qc('I can\'t focus on studying anymore, my mind keeps wandering')">🧠 Can't focus</button>
+        <button class="btn btn-o" onclick="qc('I feel like giving up on my preparation')">😞 Want to give up</button>
+        <button class="btn btn-o" onclick="qc('How do I manage exam anxiety right before the paper?')">😰 Exam anxiety</button>
+        <button class="btn btn-o" onclick="qc('I need study-break ideas to recharge my energy')">⏸️ Break ideas</button>
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  BREATHING                                            ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-breathe">
+      <div class="page-head tc">
+        <div class="page-head-eyebrow">Breathing & Relaxation</div>
+        <h2 class="page-head-title">Take a Moment to Breathe</h2>
+        <p class="page-head-sub" style="margin:6px auto 0;text-align:center">Even 2 minutes can reset your stress response and sharpen focus.</p>
+      </div>
+
+      <div class="ep" id="ep"></div>
+
+      <div class="card">
+        <div class="bz" id="bz">
+          <div class="b-ring">
+            <div class="b-orb" id="borb">
+              <span class="b-txt" id="btxt">Ready</span>
+            </div>
+          </div>
+          <div class="b-num" id="bnum"></div>
+          <div class="b-hint" id="bhint">Select a technique and press Start</div>
+          <div class="b-prog" id="bprog"></div>
+          <div class="flex gap-sm mt-md">
+            <button class="btn btn-p" id="bstart">▶ Start</button>
+            <button class="btn btn-o" id="bstop" style="display:none">⏹ Stop</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  ANALYTICS                                            ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-analytics">
+      <div class="page-head">
+        <div class="page-head-eyebrow">Analytics</div>
+        <h2 class="page-head-title">Your Wellness Insights</h2>
+        <p class="page-head-sub">Spot patterns, identify triggers, and celebrate your progress over time.</p>
+      </div>
+
+      <div class="g4 mb-md">
+        <div class="stat"><div class="stat-v" id="st">0</div><div class="stat-l">Total Entries</div></div>
+        <div class="stat"><div class="stat-v" id="sa">—</div><div class="stat-l">Avg Mood</div></div>
+        <div class="stat"><div class="stat-v" id="ss">0</div><div class="stat-l">Day Streak 🔥</div></div>
+        <div class="stat"><div class="stat-v" id="sb">—</div><div class="stat-l">Best Day</div></div>
+      </div>
+
+      <div class="g2">
+        <div class="card card-stripe">
+          <div class="card-hdr"><span class="card-lbl">Weekly Mood Trend</span></div>
+          <div class="bars" id="wc"><div class="nil-state" style="width:100%"><div class="nil-txt tsm">Not enough data</div></div></div>
+        </div>
+
+        <div class="card card-stripe">
+          <div class="card-hdr"><span class="card-lbl">Top Emotions</span></div>
+          <div class="ed" id="edist"><div class="nil-state"><div class="nil-txt tsm">Log moods to see patterns</div></div></div>
+        </div>
+
+        <div class="card card-stripe gfull">
+          <div class="card-hdr"><span class="card-lbl">Mood Level Distribution</span></div>
+          <div class="bars" id="mdist" style="height:110px"><div class="nil-state" style="width:100%"><div class="nil-txt tsm">Start tracking</div></div></div>
+        </div>
+
+        <div class="card card-stripe gfull">
+          <div class="card-hdr"><span class="card-lbl">Trigger Correlation Insights</span></div>
+          <div id="analytics-correlation-engine" style="padding-top: 6px;">
+            <div class="nil-state"><div class="nil-txt tsm">Log entries with trigger tags to calculate correlations</div></div>
+          </div>
+        </div>
+
+        <div class="card card-stripe gfull">
+          <div class="card-hdr"><span class="card-lbl">Milestones Countdown</span></div>
+          <div id="analytics-milestones-timeline" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:8px; padding-top: 6px;">
+            <div class="nil-state" style="width:100%"><div class="nil-txt tsm">No milestones configured. Add one in Profile.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ╔═══════════════════════════════════════════════════════╗
+         ║  PROFILE                                              ║
+         ╚═══════════════════════════════════════════════════════╝ -->
+    <div class="page" id="p-profile">
+      <div class="page-head">
+        <div class="page-head-eyebrow">User Profile</div>
+        <h2 class="page-head-title">Personal Settings</h2>
+        <p class="page-head-sub">Keep your profile updated so MindBuddy can customize recommendation tips and AI advice for your exam preparation.</p>
+      </div>
+      <div class="g2">
+        <!-- Profile Edit Card -->
+        <div class="card card-stripe">
+          <div class="card-hdr"><span class="card-lbl">Edit Details</span></div>
+          
+          <div class="fld">
+            <label class="fld-lbl" for="prof-name">What should we call you?</label>
+            <input class="inp" id="prof-name" type="text" placeholder="Your name..." maxlength="50" />
+          </div>
+          
+          <div class="fld">
+            <label class="fld-lbl" for="prof-exam">Target Exam</label>
+            <select class="sel" id="prof-exam">
+              <option value="General">General Wellness</option>
+              <option value="NEET">🩺 NEET</option>
+              <option value="JEE">⚙️ JEE (Main / Advanced)</option>
+              <option value="CUET">🎓 CUET</option>
+              <option value="CAT">💼 CAT</option>
+              <option value="GATE">💻 GATE</option>
+              <option value="UPSC">🏛️ UPSC</option>
+              <option value="Board Exams">📝 Board Exams (10th / 12th)</option>
+            </select>
+          </div>
+          
+          <div class="fld">
+            <label class="fld-lbl" for="prof-hours">Daily Study Commitment</label>
+            <select class="sel" id="prof-hours">
+              <option value="Under 4 hours">⏳ Under 4 hours</option>
+              <option value="4-6 hours">⏳ 4-6 hours</option>
+              <option value="6-8 hours">⏳ 6-8 hours</option>
+              <option value="8+ hours">⏳ 8+ hours</option>
+            </select>
+          </div>
+          
+          <div class="card-hdr mt-md"><span class="card-lbl" style="color:var(--rose);">Emergency Contact (Optional)</span></div>
+          <div class="fld">
+            <label class="fld-lbl" for="prof-em-name">Emergency Contact Name</label>
+            <input class="inp" id="prof-em-name" type="text" placeholder="e.g. Parent, Guardian, Friend..." maxlength="50" />
+          </div>
+          <div class="fld">
+            <label class="fld-lbl" for="prof-em-phone">Emergency Phone Number</label>
+            <input class="inp" id="prof-em-phone" type="tel" placeholder="e.g. +91 98765 43210..." maxlength="20" />
+          </div>
+          
+          <button class="btn btn-p btn-w mt-md" id="prof-save">Save Profile Changes</button>
+        </div>
+          
+          <!-- Stress & Goals Selection Card -->
+          <div class="card">
+            <div class="card-hdr"><span class="card-lbl">Wellness Settings</span></div>
+            
+            <div class="fld">
+              <label class="fld-lbl">Key Stressors (Select all that apply)</label>
+              <div class="ob-chips multi mt-xs" id="prof-stress-chips">
+                <button class="ob-chip" data-val="Mock Test Scores">Mock Test Scores</button>
+                <button class="ob-chip" data-val="Syllabus Backlog">Syllabus Backlog</button>
+                <button class="ob-chip" data-val="Family Pressure">Family Expectations</button>
+                <button class="ob-chip" data-val="Peer Competition">Peer Competition</button>
+                <button class="ob-chip" data-val="Sleep Deprivation">Lack of Sleep</button>
+                <button class="ob-chip" data-val="Time Management">Time Management</button>
+              </div>
+            </div>
+            
+            <div class="fld mt-md">
+              <label class="fld-lbl">Your Wellness Goals (Select all that apply)</label>
+              <div class="ob-chips multi mt-xs" id="prof-goal-chips">
+                <button class="ob-chip" data-val="Manage anxiety">Manage anxiety</button>
+                <button class="ob-chip" data-val="Prevent burnout">Prevent burnout</button>
+                <button class="ob-chip" data-val="Stay focused">Stay focused</button>
+                <button class="ob-chip" data-val="Improve sleep quality">Sleep better</button>
+                <button class="ob-chip" data-val="Maintain motivation">Keep motivated</button>
+              </div>
+            </div>
+            
+            <div class="flex jb mt-lg pt border-t" style="border-top: 1px solid var(--border); padding-top: 18px; gap: 10px;">
+              <button class="btn btn-o btn-w" id="prof-reset-btn" title="Redo Onboarding" style="flex: 1;">Reset Profile Settings</button>
+              <button class="btn btn-o btn-w" id="prof-logout-btn" style="border-color: var(--rose); color: var(--rose); flex: 1;" title="Sign Out">🚪 Logout Account</button>
+            </div>
+          </div>
+          
+          <!-- Milestones settings sub-card in profile page -->
+          <div class="card mt-md" style="grid-column: 1 / -1;">
+            <div class="card-hdr"><span class="card-lbl">My Exam Milestones</span></div>
+            
+            <div class="g2">
+              <div class="fld" style="margin-bottom: 0;">
+                <label class="fld-lbl" for="milestone-title">Milestone Title</label>
+                <input class="inp" id="milestone-title" placeholder="e.g. Mock Test 4, JEE Main Date..." />
+              </div>
+              <div class="fld" style="margin-bottom: 0;">
+                <label class="fld-lbl" for="milestone-date">Target Date</label>
+                <input class="inp" id="milestone-date" type="date" />
+              </div>
+            </div>
+            <button class="btn btn-p mt-md" id="milestone-add-btn" onclick="addMilestone()">➕ Add Milestone</button>
+            
+            <div class="card-lbl mt-md mb-xs">Active Milestones</div>
+            <div id="profile-milestone-list" style="display:flex; flex-direction:column; gap:6px;">
+              <div class="nil-txt tsm" style="text-align:left; margin:0; font-style:italic;">No exam milestones configured.</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- ╔═══════════════════════════════════════════════════════╗
+           ║  FOCUS TIMER                                          ║
+           ╚═══════════════════════════════════════════════════════╝ -->
+      <div class="page" id="p-focus">
+        <div class="page-head">
+          <div class="page-head-eyebrow">Mindful Study Focus</div>
+          <h2 class="page-head-title">Mindful Pomodoro Timer</h2>
+          <p class="page-head-sub">Study in blocks and take regular mindful breaks to prevent fatigue and consolidate memory.</p>
+        </div>
+        
+        <div class="g2">
+          
+          <!-- Timer Display Card -->
+          <div class="card card-stripe tc" style="padding:32px 20px;">
+            <div id="pomo-status" style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--accent); margin-bottom:8px;">Study Period</div>
+            <div id="pomo-time" style="font-size:4.5rem; font-weight:800; color:var(--text-white); font-family:monospace; line-height:1; margin-bottom:18px;">25:00</div>
+            
+            <div class="flex gap-sm justify-center" style="justify-content:center; margin-bottom:18px;">
+              <button class="btn btn-p" id="pomo-start">▶ Start Focus</button>
+              <button class="btn btn-o" id="pomo-pause" style="display:none;">⏸ Pause</button>
+              <button class="btn btn-o" id="pomo-reset">🔄 Reset</button>
+            </div>
+            
+            <!-- Quick mode switches -->
+            <div style="display:flex; justify-content:center; gap:8px;">
+              <button class="eo on" id="pomo-mode-work" onclick="setPomoMode('work')">📚 Study Mode (25m)</button>
+              <button class="eo" id="pomo-mode-break" onclick="setPomoMode('break')">🧘 Rest Break (5m)</button>
+            </div>
+          </div>
+          
+          <!-- Mindfulness Break Stretch/Exercise Card -->
+          <div class="card" id="pomo-activity-card" style="display:flex; flex-direction:column; justify-content:center;">
+            <div class="card-hdr"><span class="card-lbl">Current Focus Activity</span></div>
+            <div id="pomo-activity-content" class="tc" style="padding:15px 0;">
+              <span style="font-size:2.8rem; display:block; margin-bottom:10px;">🎯</span>
+              <div style="font-weight:600; color:var(--text-white); font-size:0.95rem;">Focus Study Block</div>
+              <div class="tmuted tsm mt-xs" style="max-width:320px; margin:5px auto 0;">Minimize distractions, concentrate on your study target, and ignore stressors until your break.</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+  </div><!-- /main -->
+
+  <!-- ═══════ KEY MODAL ═══════ -->
+  <div class="ov" id="kmod">
+    <div class="mod">
+      <div class="mod-h">🔑 Connect Gemini AI</div>
+      <div class="mod-p">Enter your Google Gemini API key for AI-powered advice. Without it, MindBuddy uses curated pre-built responses.</div>
+      <div class="fld"><input class="inp" id="kinp" type="password" placeholder="Paste your API key…" /></div>
+      <div class="flex gap-sm">
+        <button class="btn btn-p" id="ksave" style="flex:1">Save Key</button>
+        <button class="btn btn-o" id="kskip" style="flex:1">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ ONBOARDING OVERLAY ═══════ -->
+  <div class="ov" id="onboard-ov">
+    <div class="mod onboard-mod" style="max-width: 500px;">
+      <div class="onboard-steps">
+        
+        <!-- Step 1: Welcome & Name -->
+        <div class="onboard-step active" data-step="1">
+          <div class="ob-logo">🧠</div>
+          <div class="mod-h mt-md" style="font-size: 1.4rem;">Welcome to MindBuddy</div>
+          <div class="mod-p">Let's personalize your wellness journey. What should we call you?</div>
+          <div class="fld">
+            <label class="fld-lbl" for="ob-name">Your Name</label>
+            <input class="inp" id="ob-name" type="text" placeholder="Enter your name..." maxlength="50" />
+          </div>
+          
+          <div class="card-hdr mt-md"><span class="card-lbl" style="color:var(--rose); font-size:0.65rem;">Emergency Contact (Optional)</span></div>
+          <div class="fld">
+            <label class="fld-lbl" for="ob-em-name">Contact Person</label>
+            <input class="inp" id="ob-em-name" type="text" placeholder="e.g. Parent, Friend..." maxlength="50" />
+          </div>
+          <div class="fld">
+            <label class="fld-lbl" for="ob-em-phone">Phone Number</label>
+            <input class="inp" id="ob-em-phone" type="tel" placeholder="e.g. +91 98765..." maxlength="20" />
+          </div>
+          
+          <button class="btn btn-p btn-w mt-md" id="ob-next-1">Get Started</button>
+        </div>
+
+        <!-- Step 2: Exam Selection -->
+        <div class="onboard-step" data-step="2">
+          <div class="mod-h">Target Exam</div>
+          <div class="mod-p">Which competitive exam are you currently preparing for?</div>
+          <div class="fld">
+            <div class="ob-chips" id="ob-exam-chips">
+              <button class="ob-chip" data-val="NEET">🩺 NEET</button>
+              <button class="ob-chip" data-val="JEE">⚙️ JEE</button>
+              <button class="ob-chip" data-val="CUET">🎓 CUET</button>
+              <button class="ob-chip" data-val="CAT">💼 CAT</button>
+              <button class="ob-chip" data-val="GATE">💻 GATE</button>
+              <button class="ob-chip" data-val="UPSC">🏛️ UPSC</button>
+              <button class="ob-chip" data-val="Board Exams">Board Exams</button>
+              <button class="ob-chip active" data-val="General">🌟 General</button>
+            </div>
+          </div>
+          <div class="flex gap-sm mt-lg">
+            <button class="btn btn-o" id="ob-back-2">Back</button>
+            <button class="btn btn-p" id="ob-next-2" style="flex:1">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 3: Study Hours -->
+        <div class="onboard-step" data-step="3">
+          <div class="mod-h">Daily Study Commitment</div>
+          <div class="mod-p">How many hours do you typically spend studying per day?</div>
+          <div class="fld">
+            <div class="ob-chips" id="ob-hours-chips">
+              <button class="ob-chip" data-val="Under 4 hours">⏳ Under 4 hours</button>
+              <button class="ob-chip active" data-val="4-6 hours">⏳ 4-6 hours</button>
+              <button class="ob-chip" data-val="6-8 hours">⏳ 6-8 hours</button>
+              <button class="ob-chip" data-val="8+ hours">⏳ 8+ hours</button>
+            </div>
+          </div>
+          <div class="flex gap-sm mt-lg">
+            <button class="btn btn-o" id="ob-back-3">Back</button>
+            <button class="btn btn-p" id="ob-next-3" style="flex:1">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 4: Stressors -->
+        <div class="onboard-step" data-step="4">
+          <div class="mod-h">What stresses you the most?</div>
+          <div class="mod-p">Select all that apply (we will customize advice for these).</div>
+          <div class="fld">
+            <div class="ob-chips multi" id="ob-stress-chips">
+              <button class="ob-chip" data-val="Mock Test Scores">📊 Mock Tests</button>
+              <button class="ob-chip" data-val="Syllabus Backlog">📚 Backlog</button>
+              <button class="ob-chip" data-val="Family Pressure">🏠 Family Pressure</button>
+              <button class="ob-chip" data-val="Peer Competition">👥 Competition</button>
+              <button class="ob-chip" data-val="Sleep Deprivation">😴 Lack of Sleep</button>
+              <button class="ob-chip" data-val="Time Management">⏱️ Time Management</button>
+            </div>
+          </div>
+          <div class="flex gap-sm mt-lg">
+            <button class="btn btn-o" id="ob-back-4">Back</button>
+            <button class="btn btn-p" id="ob-next-4" style="flex:1">Continue</button>
+          </div>
+        </div>
+
+        <!-- Step 5: Goals -->
+        <div class="onboard-step" data-step="5">
+          <div class="mod-h">Your Wellness Goals</div>
+          <div class="mod-p">What do you want to achieve with MindBuddy? (Select all that apply)</div>
+          <div class="fld">
+            <div class="ob-chips multi" id="ob-goal-chips">
+              <button class="ob-chip" data-val="Manage anxiety">🧘 Manage anxiety</button>
+              <button class="ob-chip" data-val="Prevent burnout">🔋 Prevent burnout</button>
+              <button class="ob-chip" data-val="Stay focused">🎯 Stay focused</button>
+              <button class="ob-chip" data-val="Improve sleep quality">🌙 Sleep better</button>
+              <button class="ob-chip" data-val="Maintain motivation">🚀 Keep motivated</button>
+            </div>
+          </div>
+          <div class="flex gap-sm mt-lg">
+            <button class="btn btn-o" id="ob-back-5">Back</button>
+            <button class="btn btn-p" id="ob-submit" style="flex:1">Finish Setup ✨</button>
+          </div>
+        </div>
+
+      </div>
+      <div class="ob-progress-bar mt-md">
+        <div class="ob-progress-fill" id="ob-progress" style="width: 20%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ SOS PANIC / URGENT SUPPORT MODAL ═══════ -->
+  <div class="ov" id="urgent-ov">
+    <div class="mod" style="max-width: 520px; border-color: rgba(244,113,145,0.4); padding: 22px;">
+      <div class="mod-h" style="color: var(--rose); display: flex; align-items: center; gap: 8px; font-size: 1.3rem;">
+        <span>🚨</span> SOS Support & De-escalation
+      </div>
+      <div class="mod-p" style="margin-bottom: 16px;">If you are experiencing panic, heavy anxiety, or severe stress, choose a tool below.</div>
+      
+      <!-- Tab Bar -->
+      <div class="sos-tabs" style="display:flex; gap:6px; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:14px; overflow-x:auto;">
+        <button class="btn btn-o tsm sos-tab-btn active" data-tab="helplines">📞 Helplines</button>
+        <button class="btn btn-o tsm sos-tab-btn" data-tab="breathing">🫁 Box Breathe</button>
+        <button class="btn btn-o tsm sos-tab-btn" data-tab="grounding">🧘 Grounding</button>
+        <button class="btn btn-o tsm sos-tab-btn" data-tab="soundscapes">🎵 Soundscapes</button>
+      </div>
+
+      <!-- Tab 1: Helplines -->
+      <div class="sos-tab-content" id="sos-tab-helplines">
+        <!-- Custom Emergency Contact -->
+        <div class="card mb-md" id="urgent-personal-card" style="background: rgba(244, 113, 145, 0.04); border-color: rgba(244, 113, 145, 0.15); padding: 12px; margin-bottom: 12px;">
+          <div class="card-lbl" style="color: var(--rose); margin-bottom: 6px;">Your Saved Emergency Contact</div>
+          <div id="urgent-personal-info">
+            <div class="nil-txt tsm" style="text-align:left; margin:0;">No personal contact saved yet. Add one in Profile.</div>
+          </div>
+        </div>
+
+        <div class="card-lbl" style="margin-bottom: 6px;">Toll-Free Helplines (India)</div>
+        <div class="helplines-list" style="display:flex; flex-direction:column; gap:6px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+          <div class="mi" style="padding:8px 10px; margin-bottom:0; background:rgba(255,255,255,0.02); border-color:var(--border);">
+            <div class="mi-body">
+              <div class="mi-head" style="font-size:0.78rem; font-weight:600;">Tele-MANAS (Govt of India)</div>
+              <div class="txs tmuted">24/7 Support • Toll-Free</div>
+              <a href="tel:14416" class="btn btn-p tsm mt-xs" style="padding:4px 8px; background:linear-gradient(135deg, var(--accent2), #5865f2); color:white; text-decoration:none; display:inline-flex;">Call 14416</a>
+            </div>
+          </div>
+          <div class="mi" style="padding:8px 10px; margin-bottom:0; background:rgba(255,255,255,0.02); border-color:var(--border);">
+            <div class="mi-body">
+              <div class="mi-head" style="font-size:0.78rem; font-weight:600;">Kiran Helpline (Govt of India)</div>
+              <div class="txs tmuted">24/7 Support • Toll-Free</div>
+              <a href="tel:18005990019" class="btn btn-p tsm mt-xs" style="padding:4px 8px; background:linear-gradient(135deg, var(--accent2), #5865f2); color:white; text-decoration:none; display:inline-flex;">Call 1800-599-0019</a>
+            </div>
+          </div>
+          <div class="mi" style="padding:8px 10px; margin-bottom:0; background:rgba(255,255,255,0.02); border-color:var(--border);">
+            <div class="mi-body">
+              <div class="mi-head" style="font-size:0.78rem; font-weight:600;">AASRA Suicide Prevention</div>
+              <div class="txs tmuted">24/7 crisis line</div>
+              <a href="tel:919820466726" class="btn btn-p tsm mt-xs" style="padding:4px 8px; background:linear-gradient(135deg, var(--accent2), #5865f2); color:white; text-decoration:none; display:inline-flex;">Call 9820466726</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Box Breathing -->
+      <div class="sos-tab-content" id="sos-tab-breathing" style="display:none;">
+        <div class="tc" style="padding:15px 0;">
+          <div class="b-ring" style="width:130px; height:130px; margin: 0 auto 14px;">
+            <div class="b-orb" id="sos-borb" style="width:80px; height:80px; background:radial-gradient(circle, rgba(244,113,145,0.22), rgba(244,113,145,0.03)); border-color:var(--rose); box-shadow: 0 0 24px rgba(244,113,145,0.25);">
+              <span class="b-txt" id="sos-btxt" style="color:var(--rose); font-size:0.76rem;">Ready</span>
+            </div>
+          </div>
+          <div class="b-num" id="sos-bnum" style="font-size:1.6rem; margin-bottom:4px;"></div>
+          <div class="b-hint" id="sos-bhint" style="font-size:0.86rem; margin-bottom:10px;">Equal counts box breathing for sudden panic spikes.</div>
+          <div class="flex gap-sm justify-center" style="justify-content:center;">
+            <button class="btn btn-p" id="sos-bstart" style="background:linear-gradient(135deg, var(--rose), #cc1b44); color:white; box-shadow:0 2px 10px rgba(244,113,145,0.25);">▶ Start breathing</button>
+            <button class="btn btn-o" id="sos-bstop" style="display:none;">⏹ Stop</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Grounding (5-4-3-2-1) -->
+      <div class="sos-tab-content" id="sos-tab-grounding" style="display:none;">
+        <div class="grounding-guide" style="padding:5px 0;">
+          <div class="mod-p" style="font-size:0.82rem; margin-bottom:12px;">Grounding helps bring your focus back to the present moment. List items below:</div>
+          
+          <div class="gr-step active" data-gr="5" style="display:flex; flex-direction:column; gap:6px;">
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-white);">👁️ 5 things you can SEE around you:</div>
+            <input class="inp tsm" id="gr-inp-5" placeholder="e.g. Table, lamp, book, window..." />
+            <button class="btn btn-p tsm mt-sm" onclick="nextGr(5)">Next Step</button>
+          </div>
+
+          <div class="gr-step" data-gr="4" style="display:none; flex-direction:column; gap:6px;">
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-white);">✋ 4 things you can TOUCH/FEEL:</div>
+            <input class="inp tsm" id="gr-inp-4" placeholder="e.g. Chair support, fabric, pen texture..." />
+            <button class="btn btn-p tsm mt-sm" onclick="nextGr(4)">Next Step</button>
+          </div>
+
+          <div class="gr-step" data-gr="3" style="display:none; flex-direction:column; gap:6px;">
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-white);">👂 3 things you can HEAR:</div>
+            <input class="inp tsm" id="gr-inp-3" placeholder="e.g. Fan noise, vehicles outside, typing sound..." />
+            <button class="btn btn-p tsm mt-sm" onclick="nextGr(3)">Next Step</button>
+          </div>
+
+          <div class="gr-step" data-gr="2" style="display:none; flex-direction:column; gap:6px;">
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-white);">👃 2 things you can SMELL:</div>
+            <input class="inp tsm" id="gr-inp-2" placeholder="e.g. Coffee smell, fresh pages, laundry detergent..." />
+            <button class="btn btn-p tsm mt-sm" onclick="nextGr(2)">Next Step</button>
+          </div>
+
+          <div class="gr-step" data-gr="1" style="display:none; flex-direction:column; gap:6px;">
+            <div style="font-weight:600; font-size:0.86rem; color:var(--text-white);">👅 1 thing you can TASTE:</div>
+            <input class="inp tsm" id="gr-inp-1" placeholder="e.g. Mint, dry throat, water..." />
+            <button class="btn btn-p tsm mt-sm" onclick="nextGr(1)">Finish Exercise</button>
+          </div>
+          
+          <div class="gr-step" data-gr="0" style="display:none; text-align:center; padding:15px 0;">
+            <span style="font-size:2.5rem;">🧘</span>
+            <div class="mod-h mt-sm" style="font-size:1.1rem; color:var(--accent);">You are grounded.</div>
+            <div class="mod-p">Take one final slow breath. You are safe. You are in the present.</div>
+            <button class="btn btn-o tsm" onclick="resetGr()">Restart Grounding</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Soundscapes -->
+      <div class="sos-tab-content" id="sos-tab-soundscapes" style="display:none;">
+        <div class="soundscape-panel" style="padding:10px 0;">
+          <div class="mod-p" style="font-size:0.82rem; margin-bottom:12px;">Blocking noise mutes background distractions and calms brain speeds.</div>
+          
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <button class="btn btn-o btn-w ss-btn" data-noise="white">⚪ Play White Noise (Aircon)</button>
+            <button class="btn btn-o btn-w ss-btn" data-noise="pink">💗 Play Pink Noise (Waterfall)</button>
+            <button class="btn btn-o btn-w ss-btn" data-noise="brown">🟤 Play Brown Noise (Heavy Rain)</button>
+          </div>
+          
+          <div class="fld" style="margin-bottom:0;">
+            <label class="fld-lbl" style="display:flex; justify-content:space-between;">
+              <span>Ambient Volume</span>
+              <span id="ss-vol-lbl">70%</span>
+            </label>
+            <input type="range" id="ss-vol" min="0" max="1" step="0.05" value="0.7" style="width:100%; accent-color:var(--accent);" />
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-o btn-w mt-md" id="urgent-close">Close Support Window</button>
+    </div>
+  </div>
+
+  <!-- ═══════ BURNOUT INTERRUPTER OVERLAY ═══════ -->
+  <div class="ov" id="burnout-ov" style="z-index: 20000;">
+    <div class="mod tc" style="max-width: 440px; border-color: var(--amber); padding: 30px;">
+      <span style="font-size:3rem; display:block; margin-bottom:10px;">🚨</span>
+      <div class="mod-h" style="color: var(--amber); font-size: 1.3rem;">Fatigue Limit Warning</div>
+      <div class="mod-p" style="line-height:1.6; margin-top:10px; margin-bottom:20px;">
+        You have logged severe fatigue levels or studied continuously. MindBuddy has temporarily locked study features to protect your wellness.
+      </div>
+      
+      <div class="card mb-lg" style="background:rgba(240,180,41,0.03); border-color:rgba(240,180,41,0.1); padding:16px; border-radius: var(--r-md);">
+        <div class="card-lbl" style="color:var(--amber);">Recommended Activity</div>
+        <div id="burnout-activity-txt" style="font-size:0.88rem; color:var(--text-white); font-weight:600; margin-top:6px;">🚶 Stand up and walk around for 5 minutes</div>
+      </div>
+      
+      <div class="flex gap-sm">
+        <button class="btn btn-p btn-w" id="burnout-unlock-btn" style="background:linear-gradient(135deg, var(--amber), #c4911d); color:#080500;" disabled>Resting (Remaining: 15s)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Panic button -->
+  <button id="floating-sos-btn" aria-label="SOS Panic Button" title="SOS Panic Button">SOS</button>
+
+</div><!-- /shell -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     APPLICATION LOGIC
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+const API='http://localhost:3000';
+const E={1:'😢',2:'😟',3:'😐',4:'😊',5:'🤩'};
+const L={1:'Awful',2:'Low',3:'Okay',4:'Good',5:'Great'};
+const C={1:'#f47191',2:'#f09030',3:'#f0b429',4:'#3ecfb2',5:'#7c8cf5'};
+
+const TIPS=[
+  "Studies show even a 5-minute walk between study sessions boosts memory retention by 25%. 🚶",
+  "The Pomodoro Technique (25 min focus + 5 min break) improves concentration during long study sessions. ⏱️",
+  "Sleep is when your brain consolidates learning. All-nighters before exams hurt performance. 😴",
+  "Drinking water boosts cognitive function by 14%. Keep a bottle at your desk! 💧",
+  "Writing notes by hand activates more brain regions than typing, improving memory. ✍️",
+  "Teaching a concept out loud is the most effective way to learn it. Explain it! 🗣️",
+  "Exercise releases BDNF, a protein that grows new brain cells. Even 20 minutes helps! 🏃",
+  "Your prefrontal cortex works best in the morning. Schedule hard topics early. 🌅",
+  "Gratitude journaling before bed reduces exam anxiety by 25%. Try it tonight! 📝",
+  "Music at 60 BPM (lo-fi beats) can enhance focus and learning. 🎵",
+  "Social connection reduces cortisol and improves study performance. 👫",
+  "Deep breathing for 90 seconds lowers heart rate and anxiety via the vagus nerve. 🫁",
+];
+
+// Soundscape variables
+let audioCtx = null;
+let noiseSource = null;
+let noiseGain = null;
+let activeNoiseType = null;
+
+// Pomodoro variables
+let pomoSeconds = 1500;
+let pomoInterval = null;
+let pomoMode = 'work';
+let pomoActive = false;
+const stretchTips = [
+  "🙆 Shoulder Roll: Roll your shoulders backward 5 times, then forward 5 times. Releases neck tension.",
+  "👀 20-20-20 Rule: Look at something 20 feet away for 20 seconds to reduce digital eye strain.",
+  "🧘 Seated Twist: Sit tall, place left hand on right knee, twist gently to the right. Hold for 3 breaths.",
+  "🚶 Hydration Check: Stand up, walk to get a glass of water, and stretch your legs.",
+  "🤲 Wrist Stretch: Extend your arm, pull fingers back gently for 10 seconds. Great for typing fatigue."
+];
+
+// Burnout timer
+let burnoutCountdownInterval = null;
+
+let moods=[],exs=[],curEx=null,bI=null,bOn=false,aiOn=false,pLv=null,pEmo=[],dLv=null;
+let userProfile = null;
+
+document.addEventListener('DOMContentLoaded', async()=>{
+  greet(); tip();
+  wireNav(); wireDash(); wireMood(); wireJournal(); wireChat(); wireBreath(); wireModal();
+  wireProfile();
+  wireUrgentSupport();
+  wirePomo();
+  wireSoundscapes();
+  wireSOSBreathing();
+  await fetchProfile();
+  await apiChk(); await fetchMoods(); await fetchJ(); await fetchEx(); await fetchStats();
+});
+
+// ── NAV ──
+function wireNav(){
+  document.querySelectorAll('.sb-link').forEach(l=>l.addEventListener('click',()=>go(l.dataset.v)));
+  document.querySelectorAll('.mob-btn').forEach(l=>l.addEventListener('click',()=>go(l.dataset.v)));
+}
+
+function go(v){
+  document.querySelectorAll('.sb-link').forEach(l=>l.classList.toggle('active',l.dataset.v===v));
+  document.querySelectorAll('.mob-btn').forEach(l=>l.classList.toggle('active',l.dataset.v===v));
+  document.querySelectorAll('.page').forEach(p=>p.classList.toggle('show',p.id==='p-'+v));
+  if(v==='analytics')fetchStats();
+  if(v==='dashboard'){fetchMoods();fetchSp();fetchProfile();}
+  if(v==='mood')fetchMoods();
+  if(v==='journal')fetchJ();
+  if(v==='profile')fetchProfile();
+}
+
+// ── GREET ──
+function greet(){
+  const h=new Date().getHours();
+  let e,t;
+  if(h<12){e='🌅 Good Morning';t='Rise and shine! How are you feeling?';}
+  else if(h<17){e='☀️ Good Afternoon';t="How's your study session going?";}
+  else if(h<21){e='🌇 Good Evening';t="Winding down? Let's check in.";}
+  else{e='🌙 Good Night';t='Before you rest, how was your day?';}
+  document.getElementById('hero-eye').textContent=e;
+  document.getElementById('hero-h').textContent=t;
+}
+
+function tip(){
+  const d=Math.floor((Date.now()-new Date(new Date().getFullYear(),0,0))/864e5);
+  document.getElementById('dtip').innerHTML=`<strong>💡 Tip of the day:</strong> ${TIPS[d%TIPS.length]}`;
+}
+
+// ── API ──
+async function apiChk(){
+  try{const r=await(await fetch(`${API}/api/config`)).json();aiOn=r.geminiConfigured;updDot();}
+  catch{document.getElementById('sb-txt').textContent='Server offline';}
+}
+
+function updDot(){
+  const d=document.getElementById('sb-dot'),t=document.getElementById('sb-txt');
+  d.className=aiOn?'sb-dot on':'sb-dot off';
+  t.textContent=aiOn?'Gemini AI Connected':'Fallback Mode';
+}
+
+// ── DASH CHECKIN ──
+function wireDash(){
+  const r=document.getElementById('de'),b=document.getElementById('dlog');
+  r.querySelectorAll('.emo-btn').forEach(x=>x.addEventListener('click',()=>{
+    r.querySelectorAll('.emo-btn').forEach(y=>y.classList.remove('on'));
+    x.classList.add('on'); dLv=+x.dataset.lv; b.disabled=false;
+  }));
+  b.addEventListener('click',async()=>{
+    if(!dLv)return;
+    const em=dLv>=4?['Hopeful']:dLv<=2?['Stressed']:['Calm'];
+    try{await fetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:dLv,emotions:em,note:'',examContext:'General'})});
+    toast('Mood logged! ✨');dLv=null;r.querySelectorAll('.emo-btn').forEach(y=>y.classList.remove('on'));b.disabled=true;fetchMoods();fetchSp();
+    }catch{toast('Failed','err');}
+  });
+}
+
+// ── SPARK ──
+async function fetchSp(){try{const d=await(await fetch(`${API}/api/stats`)).json();rSp(d.weeklyTrend||[]);}catch{}}
+
+function rSp(t){
+  const el=document.getElementById('dsp');
+  if(!t.length||t.every(x=>!x.average)){el.innerHTML='<div class="nil-state"><div class="nil-ico">📊</div><div class="nil-txt tsm">Log your first mood to see trends</div></div>';return;}
+  let b='<div class="spark-r">';
+  let l='<div class="spark-ls">';
+  t.forEach(d=>{const h=d.average?(d.average/5)*100:0;b+=`<div class="spark-b${d.average?'':' nil'}" style="height:${Math.max(h,4)}%"></div>`;l+=`<div class="spark-l">${d.label}</div>`;});
+  el.innerHTML=b+'</div>'+l+'</div>';
+}
+
+// ── MOOD FORM ──
+function wireMood(){
+  const em=document.getElementById('me'),no=document.getElementById('mnote'),ch=document.getElementById('mch'),lb=document.getElementById('mlog'),cl=document.getElementById('mclear');
+  em.querySelectorAll('.emo-btn').forEach(x=>x.addEventListener('click',()=>{em.querySelectorAll('.emo-btn').forEach(y=>y.classList.remove('on'));x.classList.add('on');pLv=+x.dataset.lv;ck();}));
+  
+  document.querySelectorAll('#etags .tag, #mtags .tag').forEach(x=>x.addEventListener('click',()=>{
+    const e=x.dataset.e;
+    x.classList.toggle('on');
+    if(pEmo.includes(e))pEmo=pEmo.filter(y=>y!==e);
+    else pEmo.push(e);
+    ck();
+  }));
+  
+  no.addEventListener('input',()=>ch.textContent=`${no.value.length} / 500`);
+
+  lb.addEventListener('click',async()=>{
+    const triggerBurnout = (pLv <= 2 && pEmo.includes('Burned Out'));
+    try{
+      await fetch(`${API}/api/mood`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({level:pLv,emotions:[...pEmo],note:no.value.trim(),examContext:document.getElementById('mctx').value})});
+      toast(`${E[pLv]} ${L[pLv]} logged!`);
+      if (triggerBurnout) {
+        triggerBurnoutInterrupter('burned_out_mood');
+      }
+      pLv=null;pEmo=[];
+      em.querySelectorAll('.emo-btn').forEach(y=>y.classList.remove('on'));
+      document.querySelectorAll('#etags .tag, #mtags .tag').forEach(y=>y.classList.remove('on'));
+      no.value='';ch.textContent='0 / 500';lb.disabled=true;fetchMoods();fetchSp();
+    }catch{toast('Failed','err');}
+  });
+
+  cl.addEventListener('click',async()=>{if(!confirm('Clear all mood entries?'))return;try{for(const m of moods)await fetch(`${API}/api/mood/${m.id}`,{method:'DELETE'});toast('Cleared');fetchMoods();fetchSp();}catch{toast('Error','err');}});
+  function ck(){lb.disabled=!(pLv&&pEmo.length);}
+}
+
+// ── MOODS LIST ──
+async function fetchMoods(){try{moods=await(await fetch(`${API}/api/mood`)).json();rM();}catch{}}
+
+function rM(){
+  const el=document.getElementById('mlist');
+  if(!moods.length){el.innerHTML='<div class="nil-state"><div class="nil-ico">📝</div><div class="nil-txt">No moods logged yet</div></div>';return;}
+  el.innerHTML=moods.slice(0,30).map(m=>{
+    const t=new Date(m.timestamp).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+    const tags=m.emotions.map(e=>`<span class="mi-tag">${e}</span>`).join('');
+    return `<div class="mi"><div class="mi-emo">${E[m.level]}</div><div class="mi-body"><div class="mi-head">${L[m.level]} <span class="tmuted txs">• ${m.examContext||'General'}</span></div><div class="mi-tags">${tags}</div>${m.note?`<div class="mi-note">"${esc(m.note)}"</div>`:''}<div class="mi-time">${t}</div></div><button class="mi-del" onclick="delM('${m.id}')">✕</button></div>`;
+  }).join('');
+}
+
+async function delM(id){try{await fetch(`${API}/api/mood/${id}`,{method:'DELETE'});toast('Deleted');fetchMoods();fetchSp();}catch{toast('Error','err');}}
+
+// ── JOURNAL ──
+function wireJournal(){
+  const b=document.getElementById('jbo'),c=document.getElementById('jch');
+  b.addEventListener('input',()=>c.textContent=`${b.value.length} / 5000`);
+  document.getElementById('jsave').addEventListener('click',saveJ);
+  document.getElementById('pref').addEventListener('click',fetchP);
+  fetchP();
+}
+
+async function fetchP(){try{const d=await(await fetch(`${API}/api/journal/prompts`)).json();document.getElementById('ptxt').textContent=d.prompt;}catch{document.getElementById('ptxt').textContent="What's one thing that went well today?";}}
+
+async function saveJ(){
+  const ti=document.getElementById('jti').value.trim(),co=document.getElementById('jbo').value.trim(),pr=document.getElementById('ptxt').textContent;
+  if(!co){toast('Write something first!','err');return;}
+  try{await fetch(`${API}/api/journal`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:ti||'Untitled Entry',content:co,prompt:pr})});
+  toast('Journal saved! 📝');document.getElementById('jti').value='';document.getElementById('jbo').value='';document.getElementById('jch').textContent='0 / 5000';fetchJ();fetchP();
+  }catch{toast('Failed','err');}
+}
+
+async function fetchJ(){try{const d=await(await fetch(`${API}/api/journal`)).json();rJ(d);}catch{}}
+
+function rJ(entries){
+  const el=document.getElementById('jlist');
+  if(!entries.length){el.innerHTML='<div class="nil-state"><div class="nil-ico">📓</div><div class="nil-txt">No entries yet</div></div>';return;}
+  el.innerHTML=entries.slice(0,20).map(e=>{
+    const d=new Date(e.timestamp).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div class="jc"><div class="jc-top"><div class="jc-ti">${esc(e.title)}</div><button class="btn btn-g txs" onclick="delJ('${e.id}')">✕</button></div>${e.prompt?`<div class="txs tmuted mb-sm" style="font-style:italic">"${esc(e.prompt)}"</div>`:''}<div class="jc-snip">${esc(e.content)}</div><div class="jc-dt">${d}</div></div>`;
+  }).join('');
+}
+
+async function delJ(id){try{await fetch(`${API}/api/journal/${id}`,{method:'DELETE'});toast('Deleted');fetchJ();}catch{toast('Error','err');}}
+
+// ── CHAT ──
+function wireChat(){
+  const i=document.getElementById('cin'),s=document.getElementById('cgo');
+  s.addEventListener('click',sendC);
+  i.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendC();}});
+}
+
+function qc(m){document.getElementById('cin').value=m;sendC();}
+
+async function sendC(){
+  const i=document.getElementById('cin'),m=i.value.trim();if(!m)return;
+  addB(esc(m),'u');i.value='';i.disabled=true;document.getElementById('cgo').disabled=true;
+  const tid='t'+Date.now();addT(tid);
+  try{const r=await fetch(`${API}/api/wellness/advice`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:m,moodHistory:moods.slice(0,7)})});const d=await r.json();rmT(tid);addB(fmtAI(d.advice),'b');}
+  catch{rmT(tid);addB("Sorry, I couldn't connect right now. Please try again. 💙",'b');}
+  i.disabled=false;document.getElementById('cgo').disabled=false;i.focus();
+}
+
+function addB(h,t){const c=document.getElementById('cmsg'),d=document.createElement('div');d.className=`cb ${t}`;d.innerHTML=h;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function addT(id){const c=document.getElementById('cmsg'),d=document.createElement('div');d.className='cb b';d.id=id;d.innerHTML='<div class="spin"></div>';c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function rmT(id){document.getElementById(id)?.remove();}
+function fmtAI(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');}
+
+// ── BREATHING ──
+async function fetchEx(){
+  try{exs=await(await fetch(`${API}/api/wellness/breathing`)).json();}
+  catch{exs=[{id:'box',name:'Box Breathing',description:'Equal counts for instant calm.',steps:[{action:'Inhale',duration:4},{action:'Hold',duration:4},{action:'Exhale',duration:4},{action:'Hold',duration:4}],cycles:4,color:'#3ecfb2'},{id:'478',name:'4-7-8 Technique',description:'Promotes deep relaxation.',steps:[{action:'Inhale',duration:4},{action:'Hold',duration:7},{action:'Exhale',duration:8}],cycles:4,color:'#7c8cf5'},{id:'deep',name:'Deep Calm',description:'Extended exhale for deep relaxation.',steps:[{action:'Inhale',duration:5},{action:'Hold',duration:2},{action:'Exhale',duration:8}],cycles:5,color:'#56b3f7'}];}
+  rEp();pickE(0);
+}
+
+function rEp(){document.getElementById('ep').innerHTML=exs.map((e,i)=>`<button class="eo${i===0?' on':''}" onclick="pickE(${i})">${e.name}</button>`).join('');}
+
+function pickE(i){
+  curEx=exs[i];document.querySelectorAll('.eo').forEach((b,j)=>b.classList.toggle('on',j===i));
+  document.getElementById('borb').style.borderColor=curEx.color;
+  document.getElementById('bhint').textContent=curEx.description;
+  document.getElementById('btxt').textContent='Ready';
+  document.getElementById('bnum').textContent='';
+  document.getElementById('bprog').textContent='';
+}
+
+function wireBreath(){
+  document.getElementById('bstart').addEventListener('click',startB);
+  document.getElementById('bstop').addEventListener('click',stopB);
+}
+
+function startB(){
+  if(!curEx)return;bOn=true;
+  document.getElementById('bstart').style.display='none';document.getElementById('bstop').style.display='';
+  const st=curEx.steps,tot=curEx.cycles;let cy=0,si=0,sec=st[0].duration;
+  const orb=document.getElementById('borb'),lbl=document.getElementById('btxt'),ctr=document.getElementById('bnum'),hint=document.getElementById('bhint'),prog=document.getElementById('bprog');
+  function upd(){const s=st[si];lbl.textContent=s.action;ctr.textContent=sec;hint.textContent=s.action==='Inhale'?'Breathe in slowly…':s.action==='Exhale'?'Let it all out…':'Hold gently…';prog.textContent=`Cycle ${cy+1} of ${tot}`;orb.className='b-orb';orb.style.setProperty('--d',s.duration+'s');void orb.offsetWidth;orb.classList.add(s.action==='Inhale'?'inh':s.action==='Exhale'?'exh':'hold');}
+  upd();
+  bI=setInterval(()=>{if(!bOn)return;sec--;ctr.textContent=sec;if(sec<=0){si++;if(si>=st.length){si=0;cy++;if(cy>=tot){stopB();lbl.textContent='Done! 🎉';ctr.textContent='';hint.textContent='Great job! Exercise complete.';prog.textContent=`${tot} cycles done`;toast('Exercise complete! 🫁');return;}}sec=st[si].duration;upd();}},1000);
+}
+
+function stopB(){
+  bOn=false;clearInterval(bI);
+  document.getElementById('bstart').style.display='';document.getElementById('bstop').style.display='none';
+  document.getElementById('borb').className='b-orb';document.getElementById('btxt').textContent='Ready';document.getElementById('bnum').textContent='';
+}
+
+// ── ANALYTICS ──
+async function fetchStats(){try{const d=await(await fetch(`${API}/api/stats`)).json();rSt(d);}catch{}}
+
+function rSt(d){
+  document.getElementById('st').textContent=d.totalEntries||0;
+  document.getElementById('sa').textContent=d.averageMood?`${d.averageMood}/5`:'—';
+  document.getElementById('ss').textContent=d.streakDays||0;
+  if(d.weeklyTrend?.length){const best=d.weeklyTrend.filter(x=>x.average).sort((a,b)=>b.average-a.average)[0];document.getElementById('sb').textContent=best?best.label:'—';}
+  rWk(d.weeklyTrend||[]);rEd(d.topEmotions||[]);rMd(d.moodDistribution||{});
+  calculateCorrelations();
+  renderMilestonesTimeline();
+}
+
+function rWk(t){
+  const el=document.getElementById('wc');
+  if(!t.length||t.every(x=>!x.average)){el.innerHTML='<div class="nil-state" style="width:100%"><div class="nil-txt tsm">Not enough data</div></div>';return;}
+  el.innerHTML=t.map(d=>{
+    const h=d.average?(d.average/5)*100:0;
+    const bg=d.average?mGrad(d.average):'rgba(255,255,255,0.03)';
+    const hasMilestone = userProfile?.milestones?.some(m => m.date === d.date);
+    const milestoneMarker = hasMilestone ? `<div class="milestone-marker-dot" title="Milestone: ${esc(userProfile.milestones.find(m => m.date === d.date).title)}" style="width: 8px; height: 8px; background: var(--rose); border-radius: 50%; margin-top: 4px; box-shadow: 0 0 6px var(--rose);"></div>` : '';
+    return `<div class="bar-col" style="position:relative"><div class="bar-el" style="height:${Math.max(h,3)}%;background:${bg}" data-t="${d.average||'—'}"></div>${milestoneMarker}<div class="bar-lbl">${d.label}</div></div>`;
+  }).join('');
+}
+
+function rMd(dist){
+  const el=document.getElementById('mdist'),tot=Object.values(dist).reduce((s,v)=>s+v,0);
+  if(!tot){el.innerHTML='<div class="nil-state" style="width:100%"><div class="nil-txt tsm">Start tracking</div></div>';return;}
+  el.innerHTML=[1,2,3,4,5].map(l=>{const c=dist[l]||0,p=(c/tot)*100;return `<div class="bar-col"><div class="bar-el" style="height:${Math.max(p,3)}%;background:${C[l]}" data-t="${E[l]} ${c}"></div><div class="bar-lbl">${E[l]}</div></div>`;}).join('');
+}
+
+function rEd(emos){
+  const el=document.getElementById('edist');
+  if(!emos.length){el.innerHTML='<div class="nil-state"><div class="nil-txt tsm">Log moods to see patterns</div></div>';return;}
+  const mx=emos[0].count;
+  el.innerHTML=emos.map(e=>`<div class="ed-r"><span class="ed-n">${e.emotion}</span><div class="ed-bw"><div class="ed-bf" style="width:${(e.count/mx)*100}%"></div></div><span class="ed-c">${e.count}</span></div>`).join('');
+}
+
+function mGrad(l){if(l>=4.5)return'linear-gradient(to top,#7c8cf5,#a5b4fc)';if(l>=3.5)return'linear-gradient(to top,#3ecfb2,#5eead4)';if(l>=2.5)return'linear-gradient(to top,#f0b429,#fde68a)';if(l>=1.5)return'linear-gradient(to top,#f09030,#fb923c)';return'linear-gradient(to top,#f47191,#fda4af)';}
+
+// ── MODAL ──
+function wireModal(){
+  document.getElementById('ksave').addEventListener('click',async()=>{
+    const k=document.getElementById('kinp').value.trim();if(!k)return;
+    try{await fetch(`${API}/api/config/key`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:k})});aiOn=true;updDot();document.getElementById('kmod').classList.remove('show');toast('Gemini AI connected! 🤖');}
+    catch{toast('Failed','err');}
+  });
+  document.getElementById('kskip').addEventListener('click',()=>document.getElementById('kmod').classList.remove('show'));
+  document.getElementById('sb-status').addEventListener('click',()=>{if(!aiOn)document.getElementById('kmod').classList.add('show');});
+}
+
+// ── TOAST ──
+function toast(m,t='ok'){document.querySelector('.toast')?.remove();const d=document.createElement('div');d.className=`toast ${t}`;d.innerHTML=`${t==='ok'?'✅':'❌'} ${m}`;document.body.appendChild(d);setTimeout(()=>d.remove(),3200);}
+
+// ── PROFILE & PERSONALIZATION ──
+async function fetchProfile() {
+  try {
+    const r = await fetch(`${API}/api/profile`);
+    userProfile = await r.json();
+    if (userProfile && userProfile.onboarded) {
+      document.getElementById('onboard-ov').classList.remove('show');
+      applyProfile();
+    } else {
+      document.getElementById('onboard-ov').classList.add('show');
+    }
+  } catch (e) {
+    console.error('Failed to fetch profile:', e);
+    const local = localStorage.getItem('mindbuddy_profile');
+    if (local) {
+      userProfile = JSON.parse(local);
+      applyProfile();
+    } else {
+      document.getElementById('onboard-ov').classList.add('show');
+    }
+  }
+}
+
+function applyProfile() {
+  if (!userProfile || !userProfile.onboarded) return;
+  
+  // 1. Personalize Dashboard Header Greet
+  const h=new Date().getHours();
+  let e;
+  if(h<12)e='🌅 Good Morning';
+  else if(h<17)e='☀️ Good Afternoon';
+  else if(h<21)e='🌇 Good Evening';
+  else e='🌙 Good Night';
+  
+  document.getElementById('hero-eye').textContent = `${e}, ${userProfile.name}`;
+  document.getElementById('hero-h').textContent = `How's your ${userProfile.examContext} study prep going?`;
+  
+  // 2. Personalize Dashboard Profile Focus Card
+  const examEmoji = {
+    'NEET': '🩺', 'JEE': '⚙️', 'CUET': '🎓', 'CAT': '💼', 
+    'GATE': '💻', 'UPSC': '🏛️', 'Board Exams': '📝', 'General': '🌟'
+  }[userProfile.examContext] || '🎯';
+  
+  document.getElementById('dash-profile-exam').textContent = `Target: ${userProfile.examContext}`;
+  document.getElementById('dash-profile-emoji').textContent = examEmoji;
+  document.getElementById('dash-profile-hours').textContent = `Commitment: ${userProfile.studyHours}`;
+  
+  const goalsEl = document.getElementById('dash-profile-goals');
+  if (userProfile.wellnessGoals && userProfile.wellnessGoals.length > 0) {
+    goalsEl.innerHTML = userProfile.wellnessGoals.map(g => `<span class="mi-tag">${g}</span>`).join('');
+  } else {
+    goalsEl.innerHTML = `<span class="tmuted txs">No wellness goals selected</span>`;
+  }
+  
+  // 3. Fill Profile Page forms
+  document.getElementById('prof-name').value = userProfile.name;
+  document.getElementById('prof-exam').value = userProfile.examContext;
+  document.getElementById('prof-hours').value = userProfile.studyHours;
+  document.getElementById('prof-em-name').value = userProfile.emergencyName || '';
+  document.getElementById('prof-em-phone').value = userProfile.emergencyPhone || '';
+  
+  // Fill Onboarding step 1 fields if editing/back
+  document.getElementById('ob-name').value = userProfile.name;
+  document.getElementById('ob-em-name').value = userProfile.emergencyName || '';
+  document.getElementById('ob-em-phone').value = userProfile.emergencyPhone || '';
+  
+  // Activate chips in Profile Edit view
+  document.querySelectorAll('#prof-stress-chips .ob-chip').forEach(btn => {
+    btn.classList.toggle('on', userProfile.stressors.includes(btn.dataset.val));
+  });
+  document.querySelectorAll('#prof-goal-chips .ob-chip').forEach(btn => {
+    btn.classList.toggle('on', userProfile.wellnessGoals.includes(btn.dataset.val));
+  });
+  
+  // Update Urgent Helplines Modal Personal Contact
+  const personalInfoEl = document.getElementById('urgent-personal-info');
+  if (userProfile.emergencyName && userProfile.emergencyPhone) {
+    personalInfoEl.innerHTML = `
+      <div style="font-size:0.88rem; font-weight:600; color:var(--text-white);">${userProfile.emergencyName}</div>
+      <div class="tmuted txs mt-xs">Relationship / Name: ${userProfile.emergencyName}</div>
+      <div class="tmuted txs">Phone: ${userProfile.emergencyPhone}</div>
+      <a href="tel:${userProfile.emergencyPhone}" class="btn btn-p tsm mt-sm" style="background:#e11d48; color:white; text-decoration:none; display:inline-flex; border:none; border-radius:var(--r-sm);">📞 Call Contact Now</a>
+    `;
+  } else {
+    personalInfoEl.innerHTML = `
+      <div class="nil-txt tsm" style="text-align:left; margin:0; font-style:italic;">No personal contact saved yet. You can add one anytime in your Profile.</div>
+    `;
+  }
+  
+  // 4. Custom Welcome Message in AI Advisor if empty chat
+  const chatMsgs = document.getElementById('cmsg');
+  if (chatMsgs.children.length === 1 && chatMsgs.children[0].classList.contains('b')) {
+    chatMsgs.children[0].innerHTML = `
+      Hey <strong>${userProfile.name}</strong>! 🤝 I'm <strong>MindBuddy</strong>, your wellness companion.<br><br>
+      I understand preparing for <strong>${userProfile.examContext}</strong> can be demanding — especially with stressors like <em>${userProfile.stressors.join(', ')}</em>.<br><br>
+      Tell me how you're feeling today, and let's work towards your goal to <strong>${userProfile.wellnessGoals.join(', and ')}</strong>. 💙
+    `;
+  }
+
+  renderProfileMilestones();
+}
+
+function wireProfile() {
+  let currentStep = 1;
+  const totalSteps = 5;
+  const overlay = document.getElementById('onboard-ov');
+  const nameInput = document.getElementById('ob-name');
+  const progressBar = document.getElementById('ob-progress');
+  
+  setupChipsListener('ob-exam-chips', false);
+  setupChipsListener('ob-hours-chips', false);
+  setupChipsListener('ob-stress-chips', true);
+  setupChipsListener('ob-goal-chips', true);
+  
+  setupChipsListener('prof-stress-chips', true);
+  setupChipsListener('prof-goal-chips', true);
+  
+  function setStep(step) {
+    currentStep = step;
+    document.querySelectorAll('.onboard-step').forEach(el => {
+      el.classList.toggle('active', +el.dataset.step === step);
+    });
+    progressBar.style.width = `${(step / totalSteps) * 100}%`;
+  }
+  
+  document.getElementById('ob-next-1').addEventListener('click', () => {
+    const name = nameInput.value.trim();
+    if (!name) {
+      toast('Please enter your name', 'err');
+      return;
+    }
+    setStep(2);
+  });
+  
+  document.getElementById('ob-back-2').addEventListener('click', () => setStep(1));
+  document.getElementById('ob-next-2').addEventListener('click', () => setStep(3));
+  
+  document.getElementById('ob-back-3').addEventListener('click', () => setStep(2));
+  document.getElementById('ob-next-3').addEventListener('click', () => setStep(4));
+  
+  document.getElementById('ob-back-4').addEventListener('click', () => setStep(3));
+  document.getElementById('ob-next-4').addEventListener('click', () => setStep(5));
+  
+  document.getElementById('ob-back-5').addEventListener('click', () => setStep(4));
+  
+  document.getElementById('ob-submit').addEventListener('click', async () => {
+    const name = nameInput.value.trim();
+    const examContext = getSelectedChipValue('ob-exam-chips');
+    const studyHours = getSelectedChipValue('ob-hours-chips');
+    const stressors = getSelectedChipsValues('ob-stress-chips');
+    const wellnessGoals = getSelectedChipsValues('ob-goal-chips');
+    const emergencyName = document.getElementById('ob-em-name').value.trim();
+    const emergencyPhone = document.getElementById('ob-em-phone').value.trim();
+    
+    const profile = { name, examContext, studyHours, stressors, wellnessGoals, emergencyName, emergencyPhone, milestones: userProfile?.milestones || [] };
+    await saveProfile(profile);
+  });
+  
+  document.getElementById('prof-save').addEventListener('click', async () => {
+    const name = document.getElementById('prof-name').value.trim();
+    const examContext = document.getElementById('prof-exam').value;
+    const studyHours = document.getElementById('prof-hours').value;
+    const stressors = getSelectedChipsValues('prof-stress-chips');
+    const wellnessGoals = getSelectedChipsValues('prof-goal-chips');
+    const emergencyName = document.getElementById('prof-em-name').value.trim();
+    const emergencyPhone = document.getElementById('prof-em-phone').value.trim();
+    
+    if (!name) {
+      toast('Name is required', 'err');
+      return;
+    }
+    
+    const profile = { name, examContext, studyHours, stressors, wellnessGoals, emergencyName, emergencyPhone, milestones: userProfile?.milestones || [] };
+    await saveProfile(profile);
+  });
+  
+  document.getElementById('prof-reset-btn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to reset your profile? This will show the onboarding screen again.')) {
+      localStorage.removeItem('mindbuddy_profile');
+      userProfile = { onboarded: false };
+      nameInput.value = '';
+      document.getElementById('ob-em-name').value = '';
+      document.getElementById('ob-em-phone').value = '';
+      setStep(1);
+      overlay.classList.add('show');
+    }
+  });
+}
+
+function wireUrgentSupport() {
+  const modal = document.getElementById('urgent-ov');
+  const closeBtn = document.getElementById('urgent-close');
+  
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('#sb-urgent-btn') || e.target.closest('#dash-urgent-btn') || e.target.closest('#floating-sos-btn');
+    if (trigger) {
+      e.preventDefault();
+      modal.classList.add('show');
+      resetGr();
+    }
+  });
+  
+  closeBtn.addEventListener('click', () => {
+    modal.classList.remove('show');
+    stopSOSB();
+    stopNoise();
+  });
+  
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('show');
+      stopSOSB();
+      stopNoise();
+    }
+  });
+
+  // Tab switching
+  const tabBtns = modal.querySelectorAll('.sos-tab-btn');
+  const tabContents = modal.querySelectorAll('.sos-tab-content');
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetTab = btn.dataset.tab;
+      tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+      tabContents.forEach(content => {
+        if (content.id === `sos-tab-${targetTab}`) {
+          content.style.display = 'block';
+        } else {
+          content.style.display = 'none';
+        }
+      });
+      if (targetTab !== 'breathing') {
+        stopSOSB();
+      }
+      if (targetTab === 'grounding') {
+        resetGr();
+      }
+    });
+  });
+}
+
+function setupChipsListener(containerId, isMulti) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.ob-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      if (!isMulti) {
+        container.querySelectorAll('.ob-chip').forEach(c => c.classList.remove('active', 'on'));
+        chip.classList.add('active', 'on');
+      } else {
+        chip.classList.toggle('active');
+        chip.classList.toggle('on');
+      }
+    });
+  });
+}
+
+function getSelectedChipValue(containerId) {
+  const active = document.querySelector(`#${containerId} .ob-chip.active`) || document.querySelector(`#${containerId} .ob-chip.on`);
+  return active ? active.dataset.val : '';
+}
+
+function getSelectedChipsValues(containerId) {
+  const chips = document.querySelectorAll(`#${containerId} .ob-chip.active, #${containerId} .ob-chip.on`);
+  return Array.from(chips).map(c => c.dataset.val);
+}
+
+async function saveProfile(profile) {
+  try {
+    const r = await fetch(`${API}/api/profile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile)
+    });
+    userProfile = await r.json();
+    localStorage.setItem('mindbuddy_profile', JSON.stringify(userProfile));
+    toast('Profile updated! ✨');
+    document.getElementById('onboard-ov').classList.remove('show');
+    applyProfile();
+  } catch (e) {
+    console.error('Failed to save profile:', e);
+    userProfile = { ...profile, onboarded: true, updatedAt: new Date().toISOString() };
+    localStorage.setItem('mindbuddy_profile', JSON.stringify(userProfile));
+    toast('Saved locally! ✨');
+    document.getElementById('onboard-ov').classList.remove('show');
+    applyProfile();
+  }
+}
+
+// ── POMODORO FOCUS TIMER ──
+function wirePomo() {
+  document.getElementById('pomo-start').addEventListener('click', window.startPomo);
+  document.getElementById('pomo-pause').addEventListener('click', window.pausePomo);
+  document.getElementById('pomo-reset').addEventListener('click', window.resetPomo);
+  updatePomoDisplay();
+}
+
+function updatePomoDisplay() {
+  const m = Math.floor(pomoSeconds / 60).toString().padStart(2, '0');
+  const s = (pomoSeconds % 60).toString().padStart(2, '0');
+  document.getElementById('pomo-time').textContent = `${m}:${s}`;
+  
+  const statusEl = document.getElementById('pomo-status');
+  if (pomoMode === 'work') {
+    statusEl.textContent = 'Study Period';
+    statusEl.style.color = 'var(--accent)';
+  } else {
+    statusEl.textContent = 'Rest Break';
+    statusEl.style.color = 'var(--rose)';
+  }
+}
+
+window.setPomoMode = function(mode) {
+  if (pomoActive) {
+    if (!confirm('Changing modes will reset the current timer. Proceed?')) return;
+  }
+  pausePomo();
+  pomoMode = mode;
+  pomoSeconds = mode === 'work' ? 1500 : 300;
+  
+  document.getElementById('pomo-mode-work').classList.toggle('on', mode === 'work');
+  document.getElementById('pomo-mode-break').classList.toggle('on', mode === 'break');
+  
+  const contentEl = document.getElementById('pomo-activity-content');
+  if (mode === 'work') {
+    contentEl.innerHTML = `
+      <span style="font-size:2.8rem; display:block; margin-bottom:10px;">🎯</span>
+      <div style="font-weight:600; color:var(--text-white); font-size:0.95rem;">Focus Study Block</div>
+      <div class="tmuted tsm mt-xs" style="max-width:320px; margin:5px auto 0;">Minimize distractions, concentrate on your study target, and ignore stressors until your break.</div>
+    `;
+  } else {
+    const randomTip = stretchTips[Math.floor(Math.random() * stretchTips.length)];
+    contentEl.innerHTML = `
+      <span style="font-size:2.8rem; display:block; margin-bottom:10px;">🙆</span>
+      <div style="font-weight:600; color:var(--rose); font-size:0.95rem;">Mindful Stretch Break</div>
+      <div style="font-size:0.88rem; color:var(--text-white); font-weight:600; margin:10px auto 5px; max-width:320px;">${randomTip}</div>
+      <div class="tmuted tsm" style="max-width:320px; margin:5px auto 0;">Stand up, move, and breathe. Memory consolidation happens when you step away.</div>
+    `;
+  }
+  updatePomoDisplay();
+};
+
+window.startPomo = function() {
+  if (pomoActive) return;
+  pomoActive = true;
+  document.getElementById('pomo-start').style.display = 'none';
+  document.getElementById('pomo-pause').style.display = '';
+  
+  pomoInterval = setInterval(() => {
+    pomoSeconds--;
+    
+    // Accumulate study seconds if studying
+    if (pomoMode === 'work') {
+      let studySec = parseInt(localStorage.getItem('mindbuddy_study_seconds') || '0', 10);
+      studySec++;
+      localStorage.setItem('mindbuddy_study_seconds', studySec.toString());
+      if (studySec >= 14400) { // 4 hours limit
+        pausePomo();
+        triggerBurnoutInterrupter('continuous_study');
+        return;
+      }
+    }
+    
+    if (pomoSeconds <= 0) {
+      clearInterval(pomoInterval);
+      pomoActive = false;
+      document.getElementById('pomo-start').style.display = '';
+      document.getElementById('pomo-pause').style.display = 'none';
+      
+      playChime();
+      
+      if (pomoMode === 'work') {
+        toast('Study session complete! Take a break. 🧘');
+        window.setPomoMode('break');
+      } else {
+        toast('Break finished! Ready to focus? 📚');
+        window.setPomoMode('work');
+      }
+    } else {
+      updatePomoDisplay();
+    }
+  }, 1000);
+};
+
+window.pausePomo = function() {
+  pomoActive = false;
+  clearInterval(pomoInterval);
+  document.getElementById('pomo-start').style.display = '';
+  document.getElementById('pomo-pause').style.display = 'none';
+};
+
+window.resetPomo = function() {
+  pausePomo();
+  pomoSeconds = pomoMode === 'work' ? 1500 : 300;
+  updatePomoDisplay();
+};
+
+function playChime() {
+  try {
+    const audioCtxP = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtxP.createOscillator();
+    const gainNode = audioCtxP.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(523.25, audioCtxP.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtxP.currentTime + 0.15);
+    osc.frequency.exponentialRampToValueAtTime(783.99, audioCtxP.currentTime + 0.3);
+    
+    gainNode.gain.setValueAtTime(0.35, audioCtxP.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtxP.currentTime + 0.6);
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtxP.destination);
+    
+    osc.start();
+    osc.stop(audioCtxP.currentTime + 0.6);
+  } catch (e) {
+    console.error('Failed to play pomo chime:', e);
+  }
+}
+
+// ── BURNOUT INTERRUPTER ──
+function triggerBurnoutInterrupter(reason) {
+  const ov = document.getElementById('burnout-ov');
+  const txt = document.getElementById('burnout-activity-txt');
+  const btn = document.getElementById('burnout-unlock-btn');
+  
+  if (!ov) return;
+  
+  const activities = [
+    "🚶 Stand up and stretch your legs for 5 minutes",
+    "💧 Drink a full glass of water and rest your eyes",
+    "🫁 Open the SOS tab and do a 4-cycle Box Breathing session",
+    "🌿 Look out the window at something green for 20 seconds",
+    "🎵 Play pink noise and sit quietly with your hands on your lap"
+  ];
+  const randomAct = activities[Math.floor(Math.random() * activities.length)];
+  txt.textContent = randomAct;
+  
+  ov.classList.add('show');
+  
+  let remaining = 15;
+  btn.disabled = true;
+  btn.textContent = `Resting (Remaining: ${remaining}s)`;
+  
+  if (burnoutCountdownInterval) clearInterval(burnoutCountdownInterval);
+  
+  burnoutCountdownInterval = setInterval(() => {
+    remaining--;
+    if (remaining <= 0) {
+      clearInterval(burnoutCountdownInterval);
+      btn.disabled = false;
+      btn.textContent = "I have rested, unlock";
+      btn.style.cursor = "pointer";
+    } else {
+      btn.textContent = `Resting (Remaining: ${remaining}s)`;
+    }
+  }, 1000);
+}
+
+document.getElementById('burnout-unlock-btn').addEventListener('click', () => {
+  document.getElementById('burnout-ov').classList.remove('show');
+  localStorage.setItem('mindbuddy_study_seconds', '0');
+  toast('Study features unlocked. Take it easy! 💙');
+});
+
+// ── SOS BOX BREATHING ──
+let sosBOn = false;
+let sosBI = null;
+function wireSOSBreathing() {
+  document.getElementById('sos-bstart').addEventListener('click', startSOSB);
+  document.getElementById('sos-bstop').addEventListener('click', stopSOSB);
+}
+
+function startSOSB() {
+  sosBOn = true;
+  document.getElementById('sos-bstart').style.display = 'none';
+  document.getElementById('sos-bstop').style.display = '';
+  
+  const steps = [
+    { action: 'Inhale', duration: 4 },
+    { action: 'Hold', duration: 4 },
+    { action: 'Exhale', duration: 4 },
+    { action: 'Hold', duration: 4 }
+  ];
+  const totalCycles = 4;
+  let cycle = 0;
+  let stepIdx = 0;
+  let sec = steps[0].duration;
+  
+  const orb = document.getElementById('sos-borb');
+  const lbl = document.getElementById('sos-btxt');
+  const ctr = document.getElementById('sos-bnum');
+  const hint = document.getElementById('sos-bhint');
+  
+  function upd() {
+    const s = steps[stepIdx];
+    lbl.textContent = s.action;
+    ctr.textContent = sec;
+    
+    if (s.action === 'Inhale') {
+      hint.textContent = 'Breathe in slowly through your nose…';
+    } else if (s.action === 'Exhale') {
+      hint.textContent = 'Exhale gently through your mouth…';
+    } else {
+      hint.textContent = 'Hold your breath gently…';
+    }
+    
+    orb.className = 'b-orb';
+    orb.style.setProperty('--d', s.duration + 's');
+    void orb.offsetWidth; // force reflow
+    
+    if (s.action === 'Inhale') {
+      orb.classList.add('inh');
+    } else if (s.action === 'Exhale') {
+      orb.classList.add('exh');
+    } else {
+      orb.classList.add('hold');
+    }
+  }
+  
+  upd();
+  
+  sosBI = setInterval(() => {
+    if (!sosBOn) return;
+    sec--;
+    ctr.textContent = sec;
+    
+    if (sec <= 0) {
+      stepIdx++;
+      if (stepIdx >= steps.length) {
+        stepIdx = 0;
+        cycle++;
+        if (cycle >= totalCycles) {
+          stopSOSB();
+          lbl.textContent = 'Done! 🎉';
+          ctr.textContent = '';
+          hint.textContent = 'You did amazing. How do you feel now?';
+          toast('SOS breathing complete! 🫁');
+          return;
+        }
+      }
+      sec = steps[stepIdx].duration;
+      upd();
+    }
+  }, 1000);
+}
+
+function stopSOSB() {
+  sosBOn = false;
+  clearInterval(sosBI);
+  document.getElementById('sos-bstart').style.display = '';
+  document.getElementById('sos-bstop').style.display = 'none';
+  document.getElementById('sos-borb').className = 'b-orb';
+  document.getElementById('sos-btxt').textContent = 'Ready';
+  document.getElementById('sos-bnum').textContent = '';
+}
+
+// ── SOS GROUNDING ──
+window.nextGr = function(stepVal) {
+  const currentInp = document.getElementById(`gr-inp-${stepVal}`);
+  if (currentInp && !currentInp.value.trim()) {
+    toast('Please type what you observe before continuing.', 'err');
+    return;
+  }
+  
+  const currentEl = document.querySelector(`.gr-step[data-gr="${stepVal}"]`);
+  if (currentEl) currentEl.style.display = 'none';
+  
+  const nextStepVal = stepVal - 1;
+  const nextEl = document.querySelector(`.gr-step[data-gr="${nextStepVal}"]`);
+  if (nextEl) {
+    if (nextStepVal === 0) {
+      nextEl.style.display = 'block';
+    } else {
+      nextEl.style.display = 'flex';
+    }
+  }
+};
+
+window.resetGr = function() {
+  document.querySelectorAll('.gr-step').forEach(el => {
+    el.style.display = el.dataset.gr === '5' ? 'flex' : 'none';
+  });
+  for (let i = 1; i <= 5; i++) {
+    const inp = document.getElementById(`gr-inp-${i}`);
+    if (inp) inp.value = '';
+  }
+};
+
+// ── SOS SYNTHETIC SOUNDSCAPES ──
+function initAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    noiseGain = audioCtx.createGain();
+    const slider = document.getElementById('ss-vol');
+    noiseGain.gain.setValueAtTime(slider ? parseFloat(slider.value) : 0.7, audioCtx.currentTime);
+    noiseGain.connect(audioCtx.destination);
+  }
+}
+
+window.stopNoise = function() {
+  if (noiseSource) {
+    try {
+      noiseSource.stop();
+    } catch(e){}
+    noiseSource.disconnect();
+    noiseSource = null;
+  }
+  activeNoiseType = null;
+  
+  document.querySelectorAll('.ss-btn').forEach(btn => {
+    btn.classList.remove('active', 'on');
+    const noise = btn.dataset.noise;
+    const emoji = noise === 'white' ? '⚪' : noise === 'pink' ? '💗' : '🟤';
+    const name = noise === 'white' ? 'White Noise (Aircon)' : noise === 'pink' ? 'Pink Noise (Waterfall)' : 'Brown Noise (Heavy Rain)';
+    btn.textContent = `${emoji} Play ${name}`;
+  });
+};
+
+window.playNoise = function(type) {
+  initAudio();
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  
+  if (activeNoiseType === type) {
+    stopNoise();
+    return;
+  }
+  
+  stopNoise();
+  activeNoiseType = type;
+  
+  const sampleRate = audioCtx.sampleRate;
+  const bufferSize = 4 * sampleRate;
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, sampleRate);
+  const output = noiseBuffer.getChannelData(0);
+  
+  if (type === 'white') {
+    for (let i = 0; i < bufferSize; i++) {
+      output[i] = Math.random() * 2 - 1;
+    }
+  } else if (type === 'pink') {
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      b0 = 0.99886 * b0 + white * 0.0555179;
+      b1 = 0.99332 * b1 + white * 0.0750759;
+      b2 = 0.96900 * b2 + white * 0.1538520;
+      b3 = 0.86650 * b3 + white * 0.3104856;
+      b4 = 0.55000 * b4 + white * 0.5329522;
+      b5 = -0.7616 * b5 - white * 0.0168980;
+      output[i] = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+      output[i] *= 0.11;
+      b6 = white * 0.115926;
+    }
+  } else if (type === 'brown') {
+    let lastOut = 0.0;
+    for (let i = 0; i < bufferSize; i++) {
+      const white = Math.random() * 2 - 1;
+      output[i] = (lastOut + (0.02 * white)) / 1.02;
+      lastOut = output[i];
+      output[i] *= 3.5;
+    }
+  }
+  
+  noiseSource = audioCtx.createBufferSource();
+  noiseSource.buffer = noiseBuffer;
+  noiseSource.loop = true;
+  noiseSource.connect(noiseGain);
+  noiseSource.start();
+  
+  document.querySelectorAll('.ss-btn').forEach(btn => {
+    const btnNoise = btn.dataset.noise;
+    const isCurrent = btnNoise === type;
+    btn.classList.toggle('on', isCurrent);
+    btn.classList.toggle('active', isCurrent);
+    const emoji = btnNoise === 'white' ? '⚪' : btnNoise === 'pink' ? '💗' : '🟤';
+    const name = btnNoise === 'white' ? 'White Noise (Aircon)' : btnNoise === 'pink' ? 'Pink Noise (Waterfall)' : 'Brown Noise (Heavy Rain)';
+    btn.textContent = isCurrent ? `⏹ Stop ${name}` : `${emoji} Play ${name}`;
+  });
+};
+
+function wireSoundscapes() {
+  const slider = document.getElementById('ss-vol');
+  const label = document.getElementById('ss-vol-lbl');
+  
+  if (slider) {
+    slider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      if (label) label.textContent = `${Math.round(val * 100)}%`;
+      if (noiseGain && audioCtx) {
+        noiseGain.gain.setValueAtTime(val, audioCtx.currentTime);
+      }
+    });
+  }
+  
+  document.querySelectorAll('.ss-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.noise;
+      playNoise(type);
+    });
+  });
+}
+
+// ── CORRELATION ENGINE & MILESTONES ──
+function calculateCorrelations() {
+  const engineEl = document.getElementById('analytics-correlation-engine');
+  if (!moods || moods.length === 0) {
+    engineEl.innerHTML = '<div class="nil-state"><div class="nil-txt tsm">Log entries with trigger tags to calculate correlations</div></div>';
+    return;
+  }
+  
+  const triggers = ["Mock Test Failure", "Syllabus Backlog", "Peer Comparison", "Sleep Deprivation", "Approaching Exam Date"];
+  const overallAvg = moods.reduce((s, m) => s + m.level, 0) / moods.length;
+  
+  let insights = [];
+  triggers.forEach(trigger => {
+    const withTrigger = moods.filter(m => m.emotions.includes(trigger));
+    const withoutTrigger = moods.filter(m => !m.emotions.includes(trigger));
+    
+    if (withTrigger.length > 0) {
+      const avgWith = withTrigger.reduce((s, m) => s + m.level, 0) / withTrigger.length;
+      const avgWithout = withoutTrigger.length > 0 
+        ? withoutTrigger.reduce((s, m) => s + m.level, 0) / withoutTrigger.length
+        : overallAvg;
+      const diff = avgWithout - avgWith;
+      
+      insights.push({
+        trigger,
+        avgWith: avgWith.toFixed(1),
+        avgWithout: avgWithout.toFixed(1),
+        diff: diff,
+        count: withTrigger.length
+      });
+    }
+  });
+  
+  if (insights.length === 0) {
+    engineEl.innerHTML = '<div class="nil-state"><div class="nil-txt tsm">Log entries with academic trigger tags (e.g. Syllabus Backlog) to view stress correlation insights</div></div>';
+    return;
+  }
+  
+  insights.sort((a, b) => b.diff - a.diff);
+  
+  engineEl.innerHTML = insights.map(ins => {
+    const icon = ins.trigger === 'Mock Test Failure' ? '📊' :
+                 ins.trigger === 'Syllabus Backlog' ? '📚' :
+                 ins.trigger === 'Peer Comparison' ? '👥' :
+                 ins.trigger === 'Sleep Deprivation' ? '😴' : '⏱️';
+                 
+    const impactText = ins.diff > 0 
+      ? `-${ins.diff.toFixed(1)} Mood Points`
+      : ins.diff < 0 
+        ? `+${Math.abs(ins.diff).toFixed(1)} Mood Points`
+        : `0.0 impact`;
+        
+    const color = ins.diff > 0 ? 'var(--rose)' : 'var(--accent)';
+    
+    return `
+      <div class="card" style="background: rgba(255,255,255,0.01); border-color: var(--border); padding: 12px; margin-bottom: 8px;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-weight:600; color:var(--text-white); font-size:0.86rem;">${icon} ${ins.trigger}</span>
+          <span style="color:${color}; font-weight:700; font-size:0.86rem;">${impactText}</span>
+        </div>
+        <div class="txs tmuted mt-xs">Average mood is ${ins.avgWith}/5 (based on ${ins.count} entries) vs ${ins.avgWithout}/5 normal.</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderMilestonesTimeline() {
+  const el = document.getElementById('analytics-milestones-timeline');
+  if (!userProfile || !userProfile.milestones || userProfile.milestones.length === 0) {
+    el.innerHTML = '<div class="nil-state" style="width:100%"><div class="nil-txt tsm">No milestones configured. Add one in Profile.</div></div>';
+    return;
+  }
+  
+  const sorted = [...userProfile.milestones].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  el.innerHTML = sorted.map(m => {
+    const targetDate = new Date(m.date);
+    targetDate.setHours(0, 0, 0, 0);
+    const diffTime = targetDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let daysLeftText = '';
+    let cardStyle = 'border-color: var(--accent); background: rgba(62,207,178,0.02);';
+    if (diffDays === 0) {
+      daysLeftText = '🚩 TODAY';
+      cardStyle = 'border-color: var(--rose); background: rgba(244,113,145,0.04);';
+    } else if (diffDays > 0) {
+      daysLeftText = `⏳ ${diffDays} day${diffDays > 1 ? 's' : ''} left`;
+    } else {
+      daysLeftText = `✅ Passed ${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} ago`;
+      cardStyle = 'border-color: var(--border); opacity: 0.6;';
+    }
+    
+    return `
+      <div class="card" style="min-width: 170px; flex-shrink: 0; padding: 12px; margin-bottom:0; ${cardStyle}">
+        <div style="font-weight: 600; font-size: 0.86rem; color: var(--text-white); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${esc(m.title)}">${esc(m.title)}</div>
+        <div class="txs tmuted mt-xs">Date: ${new Date(m.date).toLocaleDateString('en-IN', {day:'numeric', month:'short'})}</div>
+        <div style="font-size: 0.84rem; font-weight: 700; margin-top: 6px;">${daysLeftText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderProfileMilestones() {
+  const el = document.getElementById('profile-milestone-list');
+  if (!userProfile || !userProfile.milestones || userProfile.milestones.length === 0) {
+    el.innerHTML = '<div class="nil-txt tsm" style="text-align:left; margin:0; font-style:italic;">No exam milestones configured.</div>';
+    return;
+  }
+  
+  el.innerHTML = userProfile.milestones.map(m => {
+    const formattedDate = new Date(m.date).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+    return `
+      <div class="mi" style="padding: 8px 12px; margin-bottom: 0; background: rgba(255,255,255,0.01); border-color: var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 0.86rem; color: var(--text-white);">${esc(m.title)}</div>
+          <div class="txs tmuted">Target Date: ${formattedDate}</div>
+        </div>
+        <button class="btn btn-g txs" style="padding: 4px 8px; border-radius: var(--r-sm);" onclick="deleteMilestone('${m.id}')">✕ Delete</button>
+      </div>
+    `;
+  }).join('');
+}
+
+window.addMilestone = async function() {
+  const titleInp = document.getElementById('milestone-title');
+  const dateInp = document.getElementById('milestone-date');
+  const title = titleInp.value.trim();
+  const date = dateInp.value;
+  
+  if (!title || !date) {
+    toast('Please enter both a title and target date.', 'err');
+    return;
+  }
+  
+  if (!userProfile.milestones) {
+    userProfile.milestones = [];
+  }
+  
+  const newMilestone = {
+    id: 'ms_' + Date.now(),
+    title,
+    date
+  };
+  
+  userProfile.milestones.push(newMilestone);
+  await saveProfile(userProfile);
+  
+  titleInp.value = '';
+  dateInp.value = '';
+  
+  renderProfileMilestones();
+  renderMilestonesTimeline();
+  fetchStats();
+};
+
+window.deleteMilestone = async function(id) {
+  if (!userProfile.milestones) return;
+  userProfile.milestones = userProfile.milestones.filter(m => m.id !== id);
+  await saveProfile(userProfile);
+  renderProfileMilestones();
+  renderMilestonesTimeline();
+  fetchStats();
+};
+
+// ── UTIL ──
+function esc(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML;}
+</script>
+
+</body>
+</html>
